@@ -9,7 +9,7 @@ import {
 } from './selectors.js';
 import { safeExtract } from '../utils/safe-extract.js';
 import { parseCoordinates } from '../utils/geo.js';
-import { dedupeLeads, dedupeMapsUrls } from '../utils/deduplicator.js';
+import { dedupeLeads } from '../utils/deduplicator.js';
 import { jitter, sleep } from '../utils/rate-limiter.js';
 import { logSuccess, logWarn, logError, logInfo, createProgressBar } from '../utils/logger.js';
 import { slugify } from '../utils/output-path.js';
@@ -18,6 +18,11 @@ import type { Lead, RawBusiness, ScraperOptions } from '../types.js';
 
 const CHECKPOINT_EVERY = 10;
 const CONSENT_HOSTS = ['consent.google.com'];
+
+interface Listing {
+  url: string;
+  name: string;
+}
 
 function checkpointPath(query: string, date: string): string {
   return `.cache/${slugify(query)}-${date}.json`;
@@ -54,25 +59,28 @@ async function assertNoCaptcha(page: Page): Promise<void> {
   }
 }
 
-async function collectListingUrls(page: Page, max: number): Promise<string[]> {
+async function collectListingUrls(page: Page, max: number): Promise<Listing[]> {
   const feed = page.locator(FEED);
   await feed.waitFor({ timeout: 15_000 });
   let stale = 0;
   let prev = 0;
-  const urls = new Set<string>();
-  while (urls.size < max && stale < 3) {
-    for (const href of await page.locator(LISTING_LINKS).evaluateAll(
-      (els) => els.map((e) => (e as HTMLAnchorElement).href),
+  const byUrl = new Map<string, string>(); // url -> nombre del listado (aria-label)
+  while (byUrl.size < max && stale < 3) {
+    for (const { url, name } of await page.locator(LISTING_LINKS).evaluateAll(
+      (els) => els.map((e) => ({
+        url: (e as HTMLAnchorElement).href,
+        name: e.getAttribute('aria-label') ?? '',
+      })),
     )) {
-      urls.add(href);
+      if (!byUrl.has(url)) byUrl.set(url, name);
     }
     if (await page.getByText(new RegExp(END_OF_LIST_TEXTS.join('|'))).count()) break;
     await feed.evaluate((el) => el.scrollBy(0, el.scrollHeight));
     await page.waitForTimeout(1500);
-    stale = urls.size === prev ? stale + 1 : 0;
-    prev = urls.size;
+    stale = byUrl.size === prev ? stale + 1 : 0;
+    prev = byUrl.size;
   }
-  return [...urls].slice(0, max);
+  return [...byUrl.entries()].slice(0, max).map(([url, name]) => ({ url, name }));
 }
 
 async function textOf(page: Page, selectors: string[]): Promise<string> {
@@ -146,12 +154,21 @@ export async function runScrape(options: ScraperOptions): Promise<Lead[]> {
     await assertNoCaptcha(page);
 
     logInfo(`Buscando "${options.query}" en "${options.location}"...`);
-    const allUrls = await collectListingUrls(page, options.max);
-    const urls = dedupeMapsUrls(allUrls, processed);
-    logSuccess(`${urls.length} negocios para procesar (${processed.size} ya hechos).`);
+    const listings = await collectListingUrls(page, options.max);
+    let candidates = listings.filter((l) => !processed.has(l.url));
+    if (options.excludeChains) {
+      candidates = candidates.filter((l) => {
+        if (isKnownChain(l.name)) {
+          logWarn(`Omitido (cadena): ${l.name || l.url}`);
+          return false;
+        }
+        return true;
+      });
+    }
+    logSuccess(`${candidates.length} negocios para procesar (${processed.size} ya hechos).`);
 
-    const bar = createProgressBar(urls.length);
-    for (const [i, url] of urls.entries()) {
+    const bar = createProgressBar(candidates.length);
+    for (const [i, { url }] of candidates.entries()) {
       try {
         const biz = await scrapeBusiness(page, url);
         if (options.excludeChains && isKnownChain(biz.name)) {
