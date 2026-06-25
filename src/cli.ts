@@ -24,6 +24,7 @@ program
   .option('--delay <number>', 'ms base entre negocios', '2000')
   .option('--output <path>', 'ruta de salida (sin él: output/{query}_{fecha})')
   .option('--resume', 'continuar desde checkpoint', false)
+  .option('--exclude-chains', 'descartar cadenas conocidas (Coto, Carrefour, Vital, etc.)', false)
   .action(async (opts) => {
     const options: ScraperOptions = {
       query: opts.query,
@@ -34,6 +35,7 @@ program
       delay: Number(opts.delay),
       output: opts.output,
       resume: Boolean(opts.resume),
+      excludeChains: Boolean(opts.excludeChains),
     };
     try {
       const leads = await runScrape(options);

@@ -27,6 +27,7 @@ export interface ScraperOptions {
   delay: number;
   output?: string;
   resume: boolean;
+  excludeChains: boolean;
 }
 
 export interface RawBusiness {

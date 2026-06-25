@@ -3,6 +3,7 @@ import type { BrowserContext, Page } from 'playwright';
 import { launchBrowser } from './browser.js';
 import { enrichWebsite } from './web-enricher.js';
 import { isCaptcha } from './captcha.js';
+import { isKnownChain } from './chains.js';
 import {
   SELECTORS, FEED, LISTING_LINKS, COOKIE_BUTTONS, END_OF_LIST_TEXTS,
 } from './selectors.js';
@@ -10,7 +11,7 @@ import { safeExtract } from '../utils/safe-extract.js';
 import { parseCoordinates } from '../utils/geo.js';
 import { dedupeLeads, dedupeMapsUrls } from '../utils/deduplicator.js';
 import { jitter, sleep } from '../utils/rate-limiter.js';
-import { logSuccess, logError, logInfo, createProgressBar } from '../utils/logger.js';
+import { logSuccess, logWarn, logError, logInfo, createProgressBar } from '../utils/logger.js';
 import { slugify } from '../utils/output-path.js';
 import { normalizeUrl } from '../utils/url.js';
 import type { Lead, RawBusiness, ScraperOptions } from '../types.js';
@@ -153,11 +154,16 @@ export async function runScrape(options: ScraperOptions): Promise<Lead[]> {
     for (const [i, url] of urls.entries()) {
       try {
         const biz = await scrapeBusiness(page, url);
-        const enrichment = options.enrich && biz.website
-          ? await enrichWebsite(context, biz.website)
-          : { email: '', instagram: '', facebook: '', whatsapp: '' };
-        leads.push(toLead(biz, enrichment, options.location, new Date().toISOString()));
-        bar.increment({ name: biz.name.slice(0, 30) });
+        if (options.excludeChains && isKnownChain(biz.name)) {
+          logWarn(`Omitido (cadena): ${biz.name}`);
+          bar.increment({ name: `omitido: ${biz.name.slice(0, 22)}` });
+        } else {
+          const enrichment = options.enrich && biz.website
+            ? await enrichWebsite(context, biz.website)
+            : { email: '', instagram: '', facebook: '', whatsapp: '' };
+          leads.push(toLead(biz, enrichment, options.location, new Date().toISOString()));
+          bar.increment({ name: biz.name.slice(0, 30) });
+        }
       } catch (err) {
         if (err instanceof Error && err.message.includes('CAPTCHA')) { bar.stop(); throw err; }
         logError(`Falló ${url}: ${(err as Error).message}`);
