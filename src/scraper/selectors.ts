@@ -20,6 +20,6 @@ export const SELECTORS = {
   phone: ['[data-item-id^="phone:tel"] .Io6YTe'],
   websiteText: ['[data-item-id="authority"] .Io6YTe'],
   websiteHref: ['a[data-item-id="authority"]'],
-  rating: ['div.F7nice > span[aria-hidden="true"]'],
+  rating: ['div.F7nice span[aria-hidden="true"]', 'div.F7nice > span[aria-hidden="true"]'],
   reviews: ['div.F7nice > span > span > span[aria-label]'],
 } as const;
