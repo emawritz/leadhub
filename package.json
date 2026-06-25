@@ -1,0 +1,29 @@
+{
+  "name": "maps-scraper",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "maps-scraper": "dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "cli-progress": "^3.12.0",
+    "commander": "^15.0.0",
+    "csv-writer": "^1.6.0",
+    "dotenv": "^17.4.2",
+    "playwright": "^1.61.1"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^26.0.1",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
+  }
+}
