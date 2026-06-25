@@ -1,0 +1,28 @@
+import { describe, it, expect } from 'vitest';
+import { leadToRow } from '../src/exporters/csv.js';
+import type { Lead } from '../src/types.js';
+
+const lead: Lead = {
+  razonSocial: 'Gym X', nombreFantasia: 'Gym X', telefono: '+541112345678',
+  email: 'hola@gymx.com', sitioWeb: 'https://gymx.com', direccion: 'Calle 1',
+  localidad: 'Adrogué', provincia: 'Buenos Aires', categoria: 'Gimnasio',
+  calificacionGoogle: '4.5', cantidadResenas: '120', instagram: 'https://instagram.com/gymx',
+  facebook: '', whatsapp: '', coordenadas: '-34.79,-58.38',
+  fuente: 'Google Maps', fechaExtraccion: '2026-06-25T10:00:00.000Z',
+};
+
+describe('leadToRow', () => {
+  it('mapea Lead a columnas LocalCenter', () => {
+    const row = leadToRow(lead);
+    expect(row.razon_social).toBe('Gym X');
+    expect(row.calificacion_google).toBe('4.5');
+    expect(row.cantidad_resenas).toBe('120');
+    expect(row.fuente).toBe('Google Maps');
+    expect(Object.keys(row)).toEqual([
+      'razon_social', 'nombre_fantasia', 'telefono', 'email', 'sitio_web',
+      'direccion', 'localidad', 'provincia', 'categoria', 'calificacion_google',
+      'cantidad_resenas', 'instagram', 'facebook', 'whatsapp', 'coordenadas',
+      'fuente', 'fecha_extraccion',
+    ]);
+  });
+});
