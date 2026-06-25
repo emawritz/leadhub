@@ -1,7 +1,8 @@
 const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g;
 
 export const EMAIL_BLOCKLIST = [
-  'sentry', 'wix', 'wordpress', 'example', 'noreply', 'privacy', 'support@google',
+  'sentry', 'wix', 'wordpress', 'example', 'ejemplo', 'noreply', 'privacy',
+  'support@google', 'tucorreo', 'youremail', 'email@',
 ];
 
 // Falsos positivos: nombres de archivos de assets capturados por el regex

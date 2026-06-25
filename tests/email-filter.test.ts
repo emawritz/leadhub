@@ -18,4 +18,9 @@ describe('filterEmails', () => {
     const input = ['nuvempago@2x.png', 'logo@3x.svg', 'real@negocio.com'];
     expect(filterEmails(input)).toEqual(['real@negocio.com']);
   });
+
+  it('descarta emails placeholder de plantillas', () => {
+    const input = ['tucorreo@ejemplo.com', 'nombre@ejemplo.com', 'youremail@example.com', 'real@negocio.com'];
+    expect(filterEmails(input)).toEqual(['real@negocio.com']);
+  });
 });
