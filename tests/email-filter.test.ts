@@ -13,4 +13,9 @@ describe('filterEmails', () => {
     const input = ['Hola@Negocio.com', 'hola@negocio.com', 'noreply@wix.com', 'x@sentry.io'];
     expect(filterEmails(input)).toEqual(['hola@negocio.com']);
   });
+
+  it('descarta falsos positivos de nombres de archivos de assets', () => {
+    const input = ['nuvempago@2x.png', 'logo@3x.svg', 'real@negocio.com'];
+    expect(filterEmails(input)).toEqual(['real@negocio.com']);
+  });
 });

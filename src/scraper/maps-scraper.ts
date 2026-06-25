@@ -82,7 +82,7 @@ async function textOf(page: Page, selectors: string[]): Promise<string> {
 }
 
 async function scrapeBusiness(page: Page, url: string): Promise<RawBusiness> {
-  await page.goto(url, { waitUntil: 'domcontentloaded' });
+  await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 20_000 });
   await page.waitForSelector('h1', { timeout: 10_000 });
   await assertNoCaptcha(page);
   await page.waitForURL(/@-?\d+\.\d+,-?\d+\.\d+/, { timeout: 5000 }).catch(() => {});
