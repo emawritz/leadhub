@@ -3,3 +3,4 @@ output/
 .cache/
 .env
 dist/
+.superpowers/
