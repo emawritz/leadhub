@@ -10,8 +10,9 @@ import { safeExtract } from '../utils/safe-extract.js';
 import { parseCoordinates } from '../utils/geo.js';
 import { dedupeLeads, dedupeMapsUrls } from '../utils/deduplicator.js';
 import { jitter, sleep } from '../utils/rate-limiter.js';
-import { logSuccess, logWarn, logError, logInfo, createProgressBar } from '../utils/logger.js';
+import { logSuccess, logError, logInfo, createProgressBar } from '../utils/logger.js';
 import { slugify } from '../utils/output-path.js';
+import { normalizeUrl } from '../utils/url.js';
 import type { Lead, RawBusiness, ScraperOptions } from '../types.js';
 
 const CHECKPOINT_EVERY = 10;
@@ -84,17 +85,19 @@ async function scrapeBusiness(page: Page, url: string): Promise<RawBusiness> {
   await page.goto(url, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('h1', { timeout: 10_000 });
   await assertNoCaptcha(page);
+  await page.waitForURL(/@-?\d+\.\d+,-?\d+\.\d+/, { timeout: 5000 }).catch(() => {});
   const websiteHref = await safeExtract(
     async (sel) => page.locator(sel).first().getAttribute('href', { timeout: 2000 }),
     [...SELECTORS.websiteHref],
   );
+  const rawWebsite = websiteHref || (await textOf(page, [...SELECTORS.websiteText]));
   return {
     mapsUrl: url,
     name: await textOf(page, [...SELECTORS.name]),
     category: await textOf(page, [...SELECTORS.category]),
     address: await textOf(page, [...SELECTORS.address]),
     phone: await textOf(page, [...SELECTORS.phone]),
-    website: websiteHref || (await textOf(page, [...SELECTORS.websiteText])),
+    website: normalizeUrl(rawWebsite),
     rating: await textOf(page, [...SELECTORS.rating]),
     reviews: await textOf(page, [...SELECTORS.reviews]),
     coordinates: parseCoordinates(page.url()),
