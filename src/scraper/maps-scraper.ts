@@ -61,7 +61,20 @@ async function assertNoCaptcha(page: Page): Promise<void> {
 
 async function collectListingUrls(page: Page, max: number): Promise<Listing[]> {
   const feed = page.locator(FEED);
-  await feed.waitFor({ timeout: 15_000 });
+  try {
+    await feed.waitFor({ timeout: 15_000 });
+  } catch {
+    // Sin panel de resultados. Dos casos:
+    // 1) Resultado único: Maps redirige directo a la ficha (/maps/place/...).
+    // 2) Cero resultados: no hay nada que listar.
+    if (page.url().includes('/maps/place/')) {
+      const name = (await page.locator('h1').first().textContent().catch(() => '')) ?? '';
+      logInfo('Resultado único (sin panel): se captura la ficha directa.');
+      return [{ url: page.url(), name: name.trim() }];
+    }
+    logWarn('La búsqueda no devolvió resultados.');
+    return [];
+  }
   let stale = 0;
   let prev = 0;
   const byUrl = new Map<string, string>(); // url -> nombre del listado (aria-label)
