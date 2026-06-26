@@ -14,7 +14,7 @@ import { jitter, sleep } from '../utils/rate-limiter.js';
 import { logSuccess, logWarn, logError, logInfo, createProgressBar } from '../utils/logger.js';
 import { slugify } from '../utils/output-path.js';
 import { normalizeUrl } from '../utils/url.js';
-import type { Lead, RawBusiness, ScraperOptions } from '../types.js';
+import type { Enrichment, Lead, RawBusiness, ScraperOptions } from '../types.js';
 
 const CHECKPOINT_EVERY = 10;
 const CONSENT_HOSTS = ['consent.google.com'];
@@ -126,13 +126,14 @@ async function scrapeBusiness(page: Page, url: string): Promise<RawBusiness> {
   };
 }
 
-function toLead(b: RawBusiness, enrichment: { email: string; instagram: string; facebook: string; whatsapp: string }, location: string, now: string): Lead {
+function toLead(b: RawBusiness, enrichment: Enrichment, location: string, now: string): Lead {
   const parts = location.split(',').map((s) => s.trim());
   return {
     razonSocial: b.name,
     nombreFantasia: b.name,
     telefono: b.phone,
     email: enrichment.email,
+    cuit: enrichment.cuit,
     sitioWeb: b.website,
     direccion: b.address,
     localidad: parts[0] ?? '',
@@ -190,7 +191,7 @@ export async function runScrape(options: ScraperOptions): Promise<Lead[]> {
         } else {
           const enrichment = options.enrich && biz.website
             ? await enrichWebsite(context, biz.website)
-            : { email: '', instagram: '', facebook: '', whatsapp: '' };
+            : { email: '', cuit: '', instagram: '', facebook: '', whatsapp: '' };
           leads.push(toLead(biz, enrichment, options.location, new Date().toISOString()));
           bar.increment({ name: biz.name.slice(0, 30) });
         }

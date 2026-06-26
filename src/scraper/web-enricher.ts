@@ -1,5 +1,6 @@
 import type { BrowserContext } from 'playwright';
 import { extractEmails, filterEmails } from '../utils/email-filter.js';
+import { extractCuit } from '../utils/cuit.js';
 import { logWarn } from '../utils/logger.js';
 import type { Enrichment, Socials } from '../types.js';
 
@@ -18,7 +19,7 @@ export function extractSocials(html: string): Socials {
   };
 }
 
-const EMPTY: Enrichment = { email: '', instagram: '', facebook: '', whatsapp: '' };
+const EMPTY: Enrichment = { email: '', cuit: '', instagram: '', facebook: '', whatsapp: '' };
 
 export async function enrichWebsite(
   context: BrowserContext,
@@ -30,8 +31,9 @@ export async function enrichWebsite(
     await page.goto(url, { timeout: timeoutMs, waitUntil: 'domcontentloaded' });
     const html = await page.content();
     const email = filterEmails(extractEmails(html))[0] ?? '';
+    const cuit = extractCuit(html);
     const socials = extractSocials(html);
-    return { email, ...socials };
+    return { email, cuit, ...socials };
   } catch {
     logWarn(`No se pudo enriquecer: ${url}`);
     return EMPTY;

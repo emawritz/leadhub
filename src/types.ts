@@ -3,6 +3,7 @@ export interface Lead {
   nombreFantasia: string;
   telefono: string;
   email: string;
+  cuit: string;
   sitioWeb: string;
   direccion: string;
   localidad: string;
@@ -50,4 +51,5 @@ export interface Socials {
 
 export interface Enrichment extends Socials {
   email: string;
+  cuit: string;
 }

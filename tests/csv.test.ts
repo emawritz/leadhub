@@ -4,7 +4,7 @@ import type { Lead } from '../src/types.js';
 
 const lead: Lead = {
   razonSocial: 'Gym X', nombreFantasia: 'Gym X', telefono: '+541112345678',
-  email: 'hola@gymx.com', sitioWeb: 'https://gymx.com', direccion: 'Calle 1',
+  email: 'hola@gymx.com', cuit: '30-12345678-9', sitioWeb: 'https://gymx.com', direccion: 'Calle 1',
   localidad: 'Adrogué', provincia: 'Buenos Aires', categoria: 'Gimnasio',
   calificacionGoogle: '4.5', cantidadResenas: '120', instagram: 'https://instagram.com/gymx',
   facebook: '', whatsapp: '', coordenadas: '-34.79,-58.38',
@@ -18,8 +18,9 @@ describe('leadToRow', () => {
     expect(row.calificacion_google).toBe('4.5');
     expect(row.cantidad_resenas).toBe('120');
     expect(row.fuente).toBe('Google Maps');
+    expect(row.cuit).toBe('30-12345678-9');
     expect(Object.keys(row)).toEqual([
-      'razon_social', 'nombre_fantasia', 'telefono', 'email', 'sitio_web',
+      'razon_social', 'nombre_fantasia', 'telefono', 'email', 'cuit', 'sitio_web',
       'direccion', 'localidad', 'provincia', 'categoria', 'calificacion_google',
       'cantidad_resenas', 'instagram', 'facebook', 'whatsapp', 'coordenadas',
       'fuente', 'fecha_extraccion',

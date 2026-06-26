@@ -3,7 +3,7 @@ import { leadKey, dedupeLeads, dedupeMapsUrls } from '../src/utils/deduplicator.
 import type { Lead } from '../src/types.js';
 
 const mk = (name: string, address: string): Lead => ({
-  razonSocial: name, nombreFantasia: name, telefono: '', email: '', sitioWeb: '',
+  razonSocial: name, nombreFantasia: name, telefono: '', email: '', cuit: '', sitioWeb: '',
   direccion: address, localidad: '', provincia: '', categoria: '',
   calificacionGoogle: '', cantidadResenas: '', instagram: '', facebook: '',
   whatsapp: '', coordenadas: '', fuente: 'Google Maps', fechaExtraccion: 'x',
