@@ -15,7 +15,7 @@ export interface Lead {
   facebook: string;
   whatsapp: string;
   coordenadas: string; // "LAT,LNG"
-  fuente: 'Google Maps';
+  fuente: string; // "Google Maps" | "OpenStreetMap" | ...
   fechaExtraccion: string; // ISO
 }
 
