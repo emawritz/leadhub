@@ -7,6 +7,9 @@ export const KNOWN_CHAINS = [
   'walmart', 'changomas', 'chango mas', 'libertad',
   // Mayoristas
   'vital', 'maxiconsumo', 'diarco', 'yaguar', 'makro',
+  // Ferretería / corralón / hogar / pinturería (cadenas)
+  'sodimac', 'easy', 'colorshop', 'pinturerias del centro', 'prestigio',
+  'hierauto', 'el rey de las herramientas',
 ];
 
 const norm = (s: string): string =>

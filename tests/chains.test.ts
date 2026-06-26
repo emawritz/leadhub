@@ -14,6 +14,12 @@ describe('isKnownChain', () => {
     expect(isKnownChain('Maxiconsumo Quilmes')).toBe(true);
   });
 
+  it('detecta cadenas de ferretería/corralón/pinturería', () => {
+    expect(isKnownChain('Sodimac Avellaneda')).toBe(true);
+    expect(isKnownChain('Easy Quilmes')).toBe(true);
+    expect(isKnownChain('Colorshop Lomas')).toBe(true);
+  });
+
   it('no marca negocios independientes', () => {
     expect(isKnownChain('Almacén Don José')).toBe(false);
     expect(isKnownChain('Distribuidora El Sol')).toBe(false);
