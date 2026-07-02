@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth.js';
 import Login from './pages/Login.js';
+import Explorer from './pages/Explorer.js';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -14,11 +15,6 @@ function RequireAuth({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-function Home() {
-  // Placeholder: reemplazado por el Explorer en la Tarea 13.
-  return <div className="p-6">LeadHub</div>;
-}
-
 function App() {
   return (
     <Routes>
@@ -27,7 +23,7 @@ function App() {
         path="/"
         element={
           <RequireAuth>
-            <Home />
+            <Explorer />
           </RequireAuth>
         }
       />
