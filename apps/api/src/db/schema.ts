@@ -24,6 +24,13 @@ export const leads = pgTable('leads', {
   fechaExtraccion: timestamp('fecha_extraccion', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+  // Columnas generadas por la migración de Task 5 (solo lectura, referenciadas para queries).
+  hasEmail: boolean('has_email').notNull(),
+  hasTelefono: boolean('has_telefono').notNull(),
+  hasWhatsapp: boolean('has_whatsapp').notNull(),
+  hasWeb: boolean('has_web').notNull(),
+  hasCuit: boolean('has_cuit').notNull(),
+  searchTsv: text('search_tsv'), // tsvector; se filtra vía sql`` (tipo aproximado)
 });
 
 export const accounts = pgTable('accounts', {

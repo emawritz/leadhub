@@ -99,6 +99,9 @@ importers:
       csv-writer:
         specifier: ^1.6.0
         version: 1.6.0
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
