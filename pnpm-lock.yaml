@@ -22,6 +22,9 @@ importers:
       argon2:
         specifier: ^0.41.0
         version: 0.41.1
+      csv-writer:
+        specifier: ^1.6.0
+        version: 1.6.0
       dotenv:
         specifier: ^16.4.0
         version: 16.6.1
