@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isValidCuit, formatCuit, extractCuit } from '../src/utils/cuit.js';
+import { isValidCuit, formatCuit, extractCuit } from '../src/cuit.js';
 
 describe('isValidCuit', () => {
   it('acepta un CUIT con dígito verificador correcto', () => {

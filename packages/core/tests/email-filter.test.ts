@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { extractEmails, filterEmails } from '../src/utils/email-filter.js';
+import { extractEmails, filterEmails } from '../src/email-filter.js';
 
 describe('extractEmails', () => {
   it('extrae todos los emails del HTML', () => {

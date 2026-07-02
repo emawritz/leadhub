@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseCoordinates } from '../src/utils/geo.js';
+import { parseCoordinates } from '../src/geo.js';
 
 describe('parseCoordinates', () => {
   it('extrae lat,lng del patrón @LAT,LNG,Zz', () => {

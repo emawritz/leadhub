@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { leadToRow } from '../src/exporters/csv.js';
+import { leadToRow } from '../src/csv.js';
 import type { Lead } from '../src/types.js';
 
 const lead: Lead = {

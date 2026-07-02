@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { normalizeUrl } from '../src/utils/url.js';
+import { normalizeUrl } from '../src/url.js';
 
 describe('normalizeUrl', () => {
   it('deja pasar URLs con https', () => {

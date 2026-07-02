@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { leadKey, dedupeLeads, dedupeMapsUrls } from '../src/utils/deduplicator.js';
+import { leadKey, dedupeLeads, dedupeMapsUrls } from '../src/deduplicator.js';
 import type { Lead } from '../src/types.js';
 
 const mk = (name: string, address: string): Lead => ({

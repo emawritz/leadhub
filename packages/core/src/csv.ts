@@ -1,7 +1,7 @@
 import { mkdir } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { createObjectCsvWriter } from 'csv-writer';
-import type { Lead } from '../types.js';
+import type { Lead } from './types.js';
 
 export const CSV_HEADER = [
   { id: 'razon_social', title: 'razon_social' },

@@ -1,4 +1,4 @@
-import type { Lead } from '../types.js';
+import type { Lead } from './types.js';
 
 const norm = (s: string): string => s.toLowerCase().trim().replace(/\s+/g, ' ');
 

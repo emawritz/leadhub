@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { slugify, resolveOutputPaths } from '../src/utils/output-path.js';
+import { slugify, resolveOutputPaths } from '../src/output-path.js';
 
 describe('slugify', () => {
   it('normaliza acentos y espacios', () => {
