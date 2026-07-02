@@ -4,3 +4,7 @@ output/
 .env
 dist/
 .superpowers/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
