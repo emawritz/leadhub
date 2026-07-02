@@ -4,6 +4,7 @@ import { eq } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { accounts } from '../db/schema.js';
 import { verifyPassword } from './password.js';
+import { requireAuth } from './require-auth.js';
 
 const loginSchema = z.object({ email: z.string().email(), password: z.string().min(1) });
 
@@ -20,7 +21,5 @@ export function authRoutes(app: FastifyInstance, db: NodePgDatabase) {
     return { ok: true, data: { token } };
   });
 
-  app.get('/me', { preHandler: [async (r, rep) => {
-    try { await r.jwtVerify(); } catch { rep.code(401).send({ ok: false, error: 'No autorizado' }); }
-  }] }, async (req) => ({ ok: true, data: req.user }));
+  app.get('/me', { preHandler: [requireAuth] }, async (req) => ({ ok: true, data: req.user }));
 }
