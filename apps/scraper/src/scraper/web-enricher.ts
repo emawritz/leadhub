@@ -1,8 +1,7 @@
 import type { BrowserContext } from 'playwright';
-import { extractEmails, filterEmails } from '../utils/email-filter.js';
-import { extractCuit } from '../utils/cuit.js';
+import { extractEmails, filterEmails, extractCuit } from '@leadhub/core';
+import type { Enrichment, Socials } from '@leadhub/core';
 import { logWarn } from '../utils/logger.js';
-import type { Enrichment, Socials } from '../types.js';
 
 const HREF_RE = /href=["']([^"']+)["']/gi;
 

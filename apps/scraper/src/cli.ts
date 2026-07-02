@@ -2,11 +2,9 @@
 import 'dotenv/config';
 import { Command } from 'commander';
 import { runScrape } from './scraper/maps-scraper.js';
-import { resolveOutputPaths } from './utils/output-path.js';
-import { writeCsv } from './exporters/csv.js';
-import { writeJson } from './exporters/json.js';
 import { logSuccess, logError } from './utils/logger.js';
-import type { ScraperOptions } from './types.js';
+import { resolveOutputPaths, writeCsv, writeJson } from '@leadhub/core';
+import type { ScraperOptions } from '@leadhub/core';
 
 const program = new Command();
 

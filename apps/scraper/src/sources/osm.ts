@@ -1,4 +1,4 @@
-import type { Lead } from '../types.js';
+import type { Lead } from '@leadhub/core';
 
 // Fuente alternativa: OpenStreetMap vía Overpass API (libre, sin anti-bot).
 // Rubros del ICP de LocalCenter mapeados desde el tag `shop`.

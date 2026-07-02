@@ -1,0 +1,16 @@
+{
+  "name": "@leadhub/scraper",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": { "maps-scraper": "dist/cli.js" },
+  "scripts": { "build": "tsc", "dev": "tsx src/cli.ts", "test": "vitest run" },
+  "dependencies": {
+    "@leadhub/core": "workspace:*",
+    "chalk": "^5.3.0", "cli-progress": "^3.12.0", "commander": "^12.0.0",
+    "dotenv": "^16.4.0", "playwright": "^1.48.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.0", "tsx": "^4.19.0", "vitest": "^4.1.0",
+    "@types/node": "^20.0.0", "@types/cli-progress": "^3.11.0"
+  }
+}

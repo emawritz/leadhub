@@ -8,13 +8,10 @@ import {
   SELECTORS, FEED, LISTING_LINKS, COOKIE_BUTTONS, END_OF_LIST_TEXTS,
 } from './selectors.js';
 import { safeExtract } from '../utils/safe-extract.js';
-import { parseCoordinates } from '../utils/geo.js';
-import { dedupeLeads } from '../utils/deduplicator.js';
 import { jitter, sleep } from '../utils/rate-limiter.js';
 import { logSuccess, logWarn, logError, logInfo, createProgressBar } from '../utils/logger.js';
-import { slugify } from '../utils/output-path.js';
-import { normalizeUrl } from '../utils/url.js';
-import type { Enrichment, Lead, RawBusiness, ScraperOptions } from '../types.js';
+import { parseCoordinates, dedupeLeads, normalizeUrl, slugify } from '@leadhub/core';
+import type { Enrichment, Lead, RawBusiness, ScraperOptions } from '@leadhub/core';
 
 const CHECKPOINT_EVERY = 10;
 const CONSENT_HOSTS = ['consent.google.com'];
