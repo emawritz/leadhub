@@ -26,4 +26,15 @@ describe('leadToRow', () => {
       'fuente', 'fecha_extraccion',
     ]);
   });
+
+  it('maneja Date y number (fila de Drizzle vía API) formateando ISO y string', () => {
+    const apiLead = {
+      ...lead,
+      fechaExtraccion: new Date('2026-06-25T10:00:00.000Z'),
+      cantidadResenas: 120,
+    } as unknown as Lead;
+    const row = leadToRow(apiLead);
+    expect(row.fecha_extraccion).toBe('2026-06-25T10:00:00.000Z');
+    expect(row.cantidad_resenas).toBe('120');
+  });
 });

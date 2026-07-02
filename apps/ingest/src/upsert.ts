@@ -19,13 +19,19 @@ export async function upsertLeads(db: NodePgDatabase, input: Lead[]): Promise<{ 
       target: leads.dedupKey,
       // completa solo si el existente está vacío (no pisa datos buenos)
       set: {
+        razonSocial: sql`CASE WHEN ${leads.razonSocial} = '' THEN excluded.razon_social ELSE ${leads.razonSocial} END`,
         telefono: sql`CASE WHEN ${leads.telefono} = '' THEN excluded.telefono ELSE ${leads.telefono} END`,
         email: sql`CASE WHEN ${leads.email} = '' THEN excluded.email ELSE ${leads.email} END`,
         cuit: sql`CASE WHEN ${leads.cuit} = '' THEN excluded.cuit ELSE ${leads.cuit} END`,
         sitioWeb: sql`CASE WHEN ${leads.sitioWeb} = '' THEN excluded.sitio_web ELSE ${leads.sitioWeb} END`,
+        localidad: sql`CASE WHEN ${leads.localidad} = '' THEN excluded.localidad ELSE ${leads.localidad} END`,
+        provincia: sql`CASE WHEN ${leads.provincia} = '' THEN excluded.provincia ELSE ${leads.provincia} END`,
+        categoria: sql`CASE WHEN ${leads.categoria} = '' THEN excluded.categoria ELSE ${leads.categoria} END`,
+        calificacionGoogle: sql`CASE WHEN ${leads.calificacionGoogle} = '' THEN excluded.calificacion_google ELSE ${leads.calificacionGoogle} END`,
         instagram: sql`CASE WHEN ${leads.instagram} = '' THEN excluded.instagram ELSE ${leads.instagram} END`,
         facebook: sql`CASE WHEN ${leads.facebook} = '' THEN excluded.facebook ELSE ${leads.facebook} END`,
         whatsapp: sql`CASE WHEN ${leads.whatsapp} = '' THEN excluded.whatsapp ELSE ${leads.whatsapp} END`,
+        coordenadas: sql`CASE WHEN ${leads.coordenadas} = '' THEN excluded.coordenadas ELSE ${leads.coordenadas} END`,
         updatedAt: sql`now()`,
       },
     }).returning({ inserted: sql<boolean>`(xmax = 0)` });

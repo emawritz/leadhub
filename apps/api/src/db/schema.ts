@@ -1,5 +1,4 @@
 import { pgTable, uuid, text, integer, boolean, timestamp, jsonb } from 'drizzle-orm/pg-core';
-import { sql } from 'drizzle-orm';
 
 export const leads = pgTable('leads', {
   id: uuid('id').primaryKey().defaultRandom(),
@@ -51,4 +50,3 @@ export const exportLogs = pgTable('export_logs', {
 });
 
 // Columnas generadas + tsvector + índices se agregan por SQL crudo en la migración (Step 3).
-export const EXTRA_SQL = sql``;

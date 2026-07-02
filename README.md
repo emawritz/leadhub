@@ -44,7 +44,7 @@ puede estar ocupado en el host — ver `docker-compose.yml`). Usuario/clave/DB: 
 ### 3. Crear la base de test
 
 ```bash
-docker compose exec db psql -U leadhub -c "CREATE DATABASE leadhub_test;"
+docker compose exec db psql -U leadhub -c "CREATE DATABASE leadhub_test;" || true
 ```
 
 ### 4. Configurar variables de entorno

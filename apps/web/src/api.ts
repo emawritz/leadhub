@@ -18,10 +18,10 @@ export const login = (email: string, password: string) => req<{ token: string }>
 export type Facets = Record<'provincia' | 'localidad' | 'categoria' | 'fuente', { value: string; count: number }[]>;
 export const getFacets = () => req<Facets>('/leads/facets');
 export const getLeads = (qs: string) => req<{ items: Lead[]; total: number; page: number; pageSize: number }>(`/leads?${qs}`);
-export const exportUrl = (qs: string) => `/api/leads/export?${qs}`;
 
 export async function downloadCsv(qs: string) {
   const res = await fetch(`/api/leads/export?${qs}`, { method: 'POST', headers: token ? { authorization: `Bearer ${token}` } : {} });
+  if (!res.ok) throw new Error('No se pudo exportar');
   const blob = await res.blob();
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'leads.csv'; a.click();

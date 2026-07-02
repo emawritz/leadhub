@@ -22,10 +22,11 @@ describe('upsertLeads', () => {
   });
   it('no duplica y completa campos vacíos', async () => {
     await upsertLeads(db, [mk()]);
-    const r = await upsertLeads(db, [mk({ email: 'nuevo@x.com' })]);
+    const r = await upsertLeads(db, [mk({ email: 'nuevo@x.com', provincia: 'Buenos Aires' })]);
     expect(r.inserted).toBe(0);
     expect(r.updated).toBe(1);
-    const { rows } = await pool.query("SELECT email FROM leads WHERE direccion='Calle 1'");
+    const { rows } = await pool.query("SELECT email, provincia FROM leads WHERE direccion='Calle 1'");
     expect(rows[0].email).toBe('nuevo@x.com');
+    expect(rows[0].provincia).toBe('Buenos Aires');
   });
 });

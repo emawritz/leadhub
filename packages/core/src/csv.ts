@@ -25,6 +25,7 @@ export const CSV_HEADER = [
 ];
 
 export function leadToRow(lead: Lead): Record<string, string> {
+  const fechaExtraccion = lead.fechaExtraccion as unknown as string | Date | null | undefined;
   return {
     razon_social: lead.razonSocial,
     nombre_fantasia: lead.nombreFantasia,
@@ -37,13 +38,14 @@ export function leadToRow(lead: Lead): Record<string, string> {
     provincia: lead.provincia,
     categoria: lead.categoria,
     calificacion_google: lead.calificacionGoogle,
-    cantidad_resenas: lead.cantidadResenas,
+    cantidad_resenas: String(lead.cantidadResenas ?? ''),
     instagram: lead.instagram,
     facebook: lead.facebook,
     whatsapp: lead.whatsapp,
     coordenadas: lead.coordenadas,
     fuente: lead.fuente,
-    fecha_extraccion: lead.fechaExtraccion,
+    fecha_extraccion:
+      fechaExtraccion instanceof Date ? fechaExtraccion.toISOString() : (fechaExtraccion ?? ''),
   };
 }
 
