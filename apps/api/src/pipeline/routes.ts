@@ -34,9 +34,12 @@ export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
     const parsed = pipelineCreateSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Datos inválidos' });
     const { leadId, ownerId } = parsed.data;
-    const [exists] = await db.select({ id: pipelineLeads.id }).from(pipelineLeads).where(eq(pipelineLeads.leadId, leadId)).limit(1);
-    if (exists) return reply.code(409).send({ ok: false, error: 'El lead ya está en el pipeline' });
-    const [row] = await db.insert(pipelineLeads).values({ leadId, ownerId: ownerId ?? null }).returning();
+    const [row] = await db
+      .insert(pipelineLeads)
+      .values({ leadId, ownerId: ownerId ?? null })
+      .onConflictDoNothing({ target: pipelineLeads.leadId })
+      .returning();
+    if (!row) return reply.code(409).send({ ok: false, error: 'El lead ya está en el pipeline' });
     return { ok: true, data: row };
   });
 
@@ -64,7 +67,8 @@ export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
   app.delete('/pipeline/:id', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
     if (!isUuid(id)) return reply.code(400).send({ ok: false, error: 'id inválido' });
-    await db.delete(pipelineLeads).where(eq(pipelineLeads.id, id));
+    const [row] = await db.delete(pipelineLeads).where(eq(pipelineLeads.id, id)).returning({ id: pipelineLeads.id });
+    if (!row) return reply.code(404).send({ ok: false, error: 'No encontrado' });
     return { ok: true, data: { id } };
   });
 
