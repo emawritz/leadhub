@@ -11,6 +11,7 @@ function breakdown(lead: LeadRow): string {
     ['email', !!lead.email],
     ['web', !!lead.sitioWeb],
     ['redes', !!(lead.instagram || lead.facebook)],
+    ['wa', !!lead.whatsapp],
     ['cuit', !!lead.cuit],
     ['GMaps', lead.fuente === 'Google Maps'],
   ];

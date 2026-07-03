@@ -21,10 +21,10 @@ function conditions(f: LeadFilters) {
 }
 
 const SORTS = {
-  nombre: asc(leads.nombreFantasia),
-  localidad: asc(leads.localidad),
-  fecha: desc(leads.fechaExtraccion),
-  prioridad: desc(leadScoreSql()),
+  nombre: [asc(leads.nombreFantasia), asc(leads.id)],
+  localidad: [asc(leads.localidad), asc(leads.id)],
+  fecha: [desc(leads.fechaExtraccion), asc(leads.id)],
+  prioridad: [desc(leadScoreSql()), asc(leads.id)],
 };
 
 export function buildLeadsQuery(db: NodePgDatabase, f: LeadFilters) {
@@ -34,7 +34,7 @@ export function buildLeadsQuery(db: NodePgDatabase, f: LeadFilters) {
   // Se envuelve en sql`` para forzar que la cláusula se emita siempre.
   const offsetSql = sql`${offsetValue}` as unknown as number;
   const rows = db.select({ ...getTableColumns(leads), score: leadScoreSql() }).from(leads).where(where)
-    .orderBy(SORTS[f.sort]).limit(f.pageSize).offset(offsetSql);
+    .orderBy(...SORTS[f.sort]).limit(f.pageSize).offset(offsetSql);
   const count = db.select({ n: sql<number>`count(*)::int` }).from(leads).where(where);
   return { rows, count };
 }
