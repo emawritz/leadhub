@@ -4,10 +4,12 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { activityCreateSchema, taskCreateSchema, taskUpdateSchema } from '@leadhub/core';
 import { activities, tasks, pipelineLeads, leads } from '../db/schema.js';
 import { requireAuth } from '../auth/require-auth.js';
+import { isUuid } from './params.js';
 
 export function activityTaskRoutes(app: FastifyInstance, db: NodePgDatabase) {
   app.post('/pipeline/:id/activities', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
+    if (!isUuid(id)) return reply.code(400).send({ ok: false, error: 'id inválido' });
     const parsed = activityCreateSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Datos inválidos' });
     const accountId = (req.user as { sub: string }).sub;
@@ -18,6 +20,7 @@ export function activityTaskRoutes(app: FastifyInstance, db: NodePgDatabase) {
 
   app.post('/pipeline/:id/tasks', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
+    if (!isUuid(id)) return reply.code(400).send({ ok: false, error: 'id inválido' });
     const parsed = taskCreateSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Datos inválidos' });
     const accountId = (req.user as { sub: string }).sub;
@@ -30,6 +33,7 @@ export function activityTaskRoutes(app: FastifyInstance, db: NodePgDatabase) {
 
   app.patch('/tasks/:taskId', { preHandler: [requireAuth] }, async (req, reply) => {
     const { taskId } = req.params as { taskId: string };
+    if (!isUuid(taskId)) return reply.code(400).send({ ok: false, error: 'id inválido' });
     const parsed = taskUpdateSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Datos inválidos' });
     const [row] = await db.update(tasks)
