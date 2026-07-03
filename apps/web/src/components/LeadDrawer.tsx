@@ -11,7 +11,7 @@ const NEUTRAL = { icon: '•', color: '#94a3b8' };
 export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string; onClose: () => void }) {
   const qc = useQueryClient();
   const detail = useQuery({ queryKey: ['pipeline', pipelineId], queryFn: () => getPipelineDetail(pipelineId) });
-  const inval = () => { qc.invalidateQueries({ queryKey: ['pipeline', pipelineId] }); qc.invalidateQueries({ queryKey: ['pipeline'] }); };
+  const inval = () => { qc.invalidateQueries({ queryKey: ['pipeline', pipelineId] }); qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); };
   const [tipo, setTipo] = useState('nota');
   const [cuerpo, setCuerpo] = useState('');
   const [titulo, setTitulo] = useState('');
@@ -20,7 +20,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   const taskMut = useMutation({ mutationFn: () => addTask(pipelineId, { titulo, vence: vence ? new Date(vence).toISOString() : undefined }), onSuccess: () => { setTitulo(''); setVence(''); inval(); } });
   const toggleMut = useMutation({ mutationFn: (t: { id: string; hecha: boolean }) => toggleTask(t.id, t.hecha), onSuccess: inval });
   const stageMut = useMutation({ mutationFn: (stage: string) => updatePipeline(pipelineId, { stage }), onSuccess: inval });
-  const delMut = useMutation({ mutationFn: () => removeFromPipeline(pipelineId), onSuccess: () => { onClose(); qc.invalidateQueries({ queryKey: ['pipeline'] }); } });
+  const delMut = useMutation({ mutationFn: () => removeFromPipeline(pipelineId), onSuccess: () => { onClose(); qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); } });
   const accounts = useQuery({ queryKey: ['accounts'], queryFn: getAccounts });
   const ownerMut = useMutation({ mutationFn: (ownerId: string | null) => updatePipeline(pipelineId, { ownerId }), onSuccess: inval });
   const outreachMut = useMutation({ mutationFn: (v: { tipo: string; cuerpo: string }) => addActivity(pipelineId, v), onSuccess: inval });
@@ -55,7 +55,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
               )}
               {d.lead.email && (
                 <a
-                  href={`mailto:${d.lead.email}?subject=${encodeURIComponent('Contacto')}&body=${encodeURIComponent(`Hola ${d.lead.nombreFantasia ?? ''}, `)}`}
+                  href={`mailto:${encodeURIComponent(d.lead.email)}?subject=${encodeURIComponent('Contacto')}&body=${encodeURIComponent(`Hola ${d.lead.nombreFantasia ?? ''}, `)}`}
                   onClick={() => outreachMut.mutate({ tipo: 'email', cuerpo: 'Mensaje iniciado por email' })}
                   className="inline-flex items-center gap-1 text-sm bg-slate-700 text-white px-3 py-1 rounded hover:bg-slate-800"
                 >
