@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { eq } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { Lead } from '@leadhub/core';
@@ -10,8 +11,11 @@ import { parseProgressLine } from './progress.js';
 import { scrapeJobs } from '../db/schema.js';
 import type { RunJob } from './worker.js';
 
-const REPO_ROOT = process.cwd();
+// Este archivo compila a apps/api/dist/scrape/runner.js, por lo que la raíz
+// del repo está cuatro niveles arriba de su directorio, independiente del cwd.
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..');
 const SCRAPER_CLI = path.resolve(REPO_ROOT, 'apps/scraper/dist/cli.js');
+const MAX_JOB_MS = 45 * 60 * 1000; // 45 min watchdog para reap de jobs colgados
 
 export function spawnScraperAndIngest(db: NodePgDatabase): RunJob {
   return async (job, hooks) => {
@@ -35,7 +39,14 @@ export function spawnScraperAndIngest(db: NodePgDatabase): RunJob {
     });
     child.stderr.on('data', (d) => { stderr += String(d); });
 
-    const code: number = await new Promise((resolve) => child.on('close', (c) => resolve(c ?? 1)));
+    const code: number = await new Promise<number>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        child.kill('SIGKILL');
+        reject(new Error('El scrape excedió el tiempo máximo (45 min) y fue cancelado.'));
+      }, MAX_JOB_MS);
+      child.on('error', (e) => { clearTimeout(timer); reject(new Error(`No se pudo iniciar el scraper: ${e.message}`)); });
+      child.on('close', (c) => { clearTimeout(timer); resolve(c ?? 1); });
+    });
     if (code !== 0) {
       const captcha = /captcha|unusual traffic/i.test(stderr);
       throw new Error(captcha

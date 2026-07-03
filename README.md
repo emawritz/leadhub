@@ -186,7 +186,9 @@ Para que `/buscar` funcione, se deben cumplir estos pasos previos:
    docker compose up -d db
    ```
 
-3. **API desde la raíz del repo** con cwd en la raíz (el worker necesita resolver `output/jobs/` y el CLI del scraper):
+3. **Levantar la API** — puede iniciarse desde cualquier directorio: `apps/api/.env` y la ruta del CLI del scraper /
+   `output/jobs/` se resuelven por ruta absoluta a partir del archivo compilado (`import.meta.url`), no del `cwd`
+   del proceso:
    ```bash
    # Si puerto 3001 está disponible:
    pnpm --filter @leadhub/api dev
@@ -220,6 +222,9 @@ El scraper corre **headless** (sin interfaz gráfica) usando un perfil de navega
 - **Output:** El JSON de resultados de cada scrape se guarda en `output/jobs/<jobId>.json`.
 - **Leads:** Finalizando el scrape, los leads se ingresan (upsert idempotente) en la tabla `leads`, ordenados por `leadKey` (dedup).
 - **Estado en BD:** La tabla `scrape_jobs` registra el estado del job: `queued` → `running` → `done` o `error`.
+- **Watchdog:** Si un scrape queda colgado, se cancela automáticamente a los 45 minutos y el job pasa a `error`.
+- **Robustez del spawn:** Si el proceso del scraper no puede iniciarse (ej. build faltante, `node` no encontrado),
+  el job pasa a `error` con el detalle — la API **no** se cae por esto.
 
 ### Flujo de ejemplo
 
