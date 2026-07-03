@@ -29,17 +29,17 @@ function Column({ stageId, label, cards, onOpen }: { stageId: string; label: str
     <div
       ref={setNodeRef}
       style={{ borderTop: `3px solid ${color}`, boxShadow: isOver ? `inset 0 0 0 2px ${color}` : undefined }}
-      className={`w-64 shrink-0 rounded-lg p-2 transition-colors ${isOver ? 'bg-slate-100' : 'bg-slate-50'}`}
+      className={`w-64 shrink-0 rounded-lg p-2 transition-colors ${isOver ? 'bg-surface' : 'bg-parchment'}`}
     >
       <div className="flex items-center justify-between px-1 pb-2">
-        <span className="text-sm font-semibold text-slate-700 flex items-center gap-1">
+        <span className="text-sm font-semibold text-ink flex items-center gap-1">
           <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
           {closed ? `✓ ${label}` : label}
         </span>
-        <span className="text-xs text-slate-400">{cards.length}</span>
+        <span className="text-xs text-faint">{cards.length}</span>
       </div>
       {cards.length === 0
-        ? <div className="text-xs text-slate-400 border border-dashed border-slate-200 rounded p-3 text-center">Vacío</div>
+        ? <div className="text-xs text-faint border border-dashed border-hairline rounded-md p-3 text-center">Vacío</div>
         : cards.map((c) => <KanbanCard key={c.id} card={c} onOpen={onOpen} />)}
     </div>
   );
@@ -91,7 +91,7 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
       </div>
       <DragOverlay dropAnimation={reduced ? null : undefined}>
         {activeCard
-          ? <div className={reduced ? '' : 'shadow-xl rounded-lg'}><KanbanCard card={activeCard} onOpen={() => {}} /></div>
+          ? <div className={`rounded-lg ${reduced ? '' : 'ring-2 ring-accent'}`}><KanbanCard card={activeCard} onOpen={() => {}} /></div>
           : null}
       </DragOverlay>
     </DndContext>

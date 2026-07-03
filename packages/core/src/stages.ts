@@ -18,19 +18,18 @@ export const ACTIVITY_TYPES = ['nota', 'llamada', 'email', 'whatsapp', 'etapa'] 
 export type ActivityType = (typeof ACTIVITY_TYPES)[number];
 export const USER_ACTIVITY_TYPES = ['nota', 'llamada', 'email', 'whatsapp'] as const;
 
-/** Color de acento (hex) por etapa — token único, consumido con style inline en la UI. */
 export const STAGE_COLORS: Record<StageId, string> = {
-  nuevo: '#64748b',       // slate-500
-  contactado: '#3b82f6',  // blue-500
-  interesado: '#8b5cf6',  // violet-500
-  negociacion: '#f59e0b', // amber-500
-  ganado: '#10b981',      // emerald-500
-  perdido: '#ef4444',     // red-500
+  nuevo: '#8e8e93',
+  contactado: '#0071a8',
+  interesado: '#6e5aa8',
+  negociacion: '#b06d1f',
+  ganado: '#1a7f52',
+  perdido: '#b23b3b',
 };
 
 /** Hex de la etapa; gris neutro si el id no matchea. */
 export function stageColor(id: string): string {
-  return (STAGE_COLORS as Record<string, string>)[id] ?? '#64748b';
+  return (STAGE_COLORS as Record<string, string>)[id] ?? '#8e8e93';
 }
 
 /** Ícono + color por tipo de actividad, para el timeline del drawer. */

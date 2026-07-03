@@ -1,4 +1,6 @@
 import { useDraggable } from '@dnd-kit/core';
+// Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
+import { stageColor } from '@leadhub/core/stages';
 import type { PipelineCard } from '../api.js';
 
 /** Color estable derivado de un string (para el avatar del dueño). */
@@ -21,6 +23,7 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
   const vence = card.proximoVence ? new Date(card.proximoVence) : null;
   const vencida = vence != null && vence.getTime() < Date.now();
   const ownerBg = card.ownerNombre ? avatarColor(card.ownerId ?? card.ownerNombre) : '#cbd5e1';
+  const perdidoColor = stageColor('perdido');
 
   return (
     <div
@@ -29,17 +32,17 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
       {...listeners}
       {...attributes}
       onClick={() => onOpen(card.id)}
-      className={`group bg-white border border-slate-200 rounded-lg p-2.5 mb-2 cursor-grab shadow-sm transition-shadow hover:shadow-md hover:border-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 ${isDragging ? 'opacity-50' : ''}`}
+      className={`group card p-2.5 mb-2 cursor-grab transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-focus ${isDragging ? 'opacity-50' : ''}`}
     >
-      <div className="font-semibold text-sm text-slate-800 truncate">{card.nombre}</div>
-      <div className="mt-1 flex items-center gap-1.5 text-xs text-slate-500">
-        {card.categoria && <span className="bg-slate-100 text-slate-600 rounded px-1.5 py-0.5 text-[11px] truncate max-w-[8rem]">{card.categoria}</span>}
+      <div className="font-semibold text-sm text-ink truncate">{card.nombre}</div>
+      <div className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+        {card.categoria && <span className="bg-parchment text-muted rounded-sm px-1.5 py-0.5 text-[11px] truncate max-w-[8rem]">{card.categoria}</span>}
         {card.localidad && <span className="truncate">📍 {card.localidad}</span>}
       </div>
       <div className="mt-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <span
-            className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-semibold text-white"
+            className="inline-flex items-center justify-center w-5 h-5 rounded-full text-[10px] font-semibold text-on-accent"
             style={{ backgroundColor: ownerBg }}
             title={card.ownerNombre ?? 'sin dueño'}
           >
@@ -48,12 +51,15 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
         </div>
         <div className="flex items-center gap-1.5">
           {vence && (
-            <span className={`text-[11px] px-1.5 py-0.5 rounded ${vencida ? 'bg-red-50 text-red-600' : 'bg-slate-100 text-slate-500'}`}>
+            <span
+              className={`text-[11px] px-1.5 py-0.5 rounded-sm ${vencida ? '' : 'bg-parchment text-muted'}`}
+              style={vencida ? { backgroundColor: `${perdidoColor}1a`, color: perdidoColor } : undefined}
+            >
               ⏰ {vence.toLocaleDateString()}
             </span>
           )}
           {card.pendientes > 0 && (
-            <span className="text-[11px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-medium">{card.pendientes}</span>
+            <span className="text-[11px] px-1.5 py-0.5 rounded-sm bg-accent text-on-accent font-medium">{card.pendientes}</span>
           )}
         </div>
       </div>

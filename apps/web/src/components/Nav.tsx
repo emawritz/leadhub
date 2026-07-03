@@ -1,19 +1,26 @@
 import { NavLink } from 'react-router-dom';
 import { useAuth } from '../auth.js';
+import { useTheme } from '../theme.js';
 
 export default function Nav() {
   const { signOut } = useAuth();
+  const { theme, toggle } = useTheme();
   const cls = ({ isActive }: { isActive: boolean }) =>
-    `px-3 py-2 rounded ${isActive ? 'bg-black text-white' : 'text-black hover:bg-gray-100'}`;
+    `px-3 py-1.5 rounded-sm text-[13px] tracking-tight transition-colors ${isActive ? 'text-on-nav font-semibold' : 'text-on-nav opacity-70 hover:opacity-100'}`;
   return (
-    <nav className="flex items-center gap-2 border-b px-6 py-3">
-      <span className="font-bold mr-4">LeadHub</span>
+    <nav className="flex items-center gap-1 bg-nav px-6 h-12">
+      <span className="font-semibold text-on-nav mr-4 tracking-tight">LeadHub</span>
       <NavLink to="/" className={cls} end>Explorar</NavLink>
       <NavLink to="/buscar" className={cls}>Buscar</NavLink>
       <NavLink to="/pipeline" className={cls}>Pipeline</NavLink>
       <NavLink to="/tareas" className={cls}>Tareas</NavLink>
       <NavLink to="/dashboard" className={cls}>Dashboard</NavLink>
-      <button onClick={signOut} className="ml-auto text-sm text-gray-600 hover:underline">Salir</button>
+      <div className="ml-auto flex items-center gap-3">
+        <button onClick={toggle} aria-label="Cambiar tema" className="text-on-nav opacity-70 hover:opacity-100 text-[15px]">
+          {theme === 'dark' ? '☀️' : '🌙'}
+        </button>
+        <button onClick={signOut} className="btn-utility">Salir</button>
+      </div>
     </nav>
   );
 }
