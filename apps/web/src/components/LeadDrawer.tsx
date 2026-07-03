@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
 import { STAGES, USER_ACTIVITY_TYPES, ACTIVITY_META, stageColor } from '@leadhub/core/stages';
-import { getPipelineDetail, addActivity, addTask, toggleTask, updatePipeline, removeFromPipeline } from '../api.js';
+import { getPipelineDetail, addActivity, addTask, toggleTask, updatePipeline, removeFromPipeline, getAccounts } from '../api.js';
 
 const NEUTRAL = { icon: '•', color: '#94a3b8' };
 
@@ -19,6 +19,8 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   const toggleMut = useMutation({ mutationFn: (t: { id: string; hecha: boolean }) => toggleTask(t.id, t.hecha), onSuccess: inval });
   const stageMut = useMutation({ mutationFn: (stage: string) => updatePipeline(pipelineId, { stage }), onSuccess: inval });
   const delMut = useMutation({ mutationFn: () => removeFromPipeline(pipelineId), onSuccess: () => { onClose(); qc.invalidateQueries({ queryKey: ['pipeline'] }); } });
+  const accounts = useQuery({ queryKey: ['accounts'], queryFn: getAccounts });
+  const ownerMut = useMutation({ mutationFn: (ownerId: string | null) => updatePipeline(pipelineId, { ownerId }), onSuccess: inval });
 
   const d = detail.data;
   const inputCls = 'border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300';
@@ -45,6 +47,18 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                 {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
               </select>
               <button onClick={() => delMut.mutate()} className="ml-auto text-sm text-red-600 hover:underline">Sacar</button>
+            </div>
+
+            <div className="mt-2 flex items-center gap-2">
+              <span className="text-sm font-medium text-slate-600">Dueño</span>
+              <select
+                value={d.pipeline.ownerId ?? ''}
+                onChange={(e) => ownerMut.mutate(e.target.value === '' ? null : e.target.value)}
+                className={inputCls}
+              >
+                <option value="">Sin asignar</option>
+                {(accounts.data ?? []).map((a) => <option key={a.id} value={a.id}>{a.nombre ?? a.email}</option>)}
+              </select>
             </div>
 
             <h3 className="font-semibold text-slate-700 mt-6 mb-2">Tareas</h3>
