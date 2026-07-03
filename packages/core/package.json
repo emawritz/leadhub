@@ -4,7 +4,8 @@
   "type": "module",
   "exports": {
     ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./stages": { "types": "./dist/stages.d.ts", "import": "./dist/stages.js" }
+    "./stages": { "types": "./dist/stages.d.ts", "import": "./dist/stages.js" },
+    "./score": { "types": "./dist/score.d.ts", "import": "./dist/score.js" }
   },
   "types": "./dist/index.d.ts",
   "scripts": {
