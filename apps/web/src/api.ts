@@ -47,6 +47,9 @@ export interface Task { id: string; titulo: string; vence: string | null; hecha:
 export interface PipelineDetail { pipeline: { id: string; stage: string; ownerId: string | null }; lead: Lead; activities: Activity[]; tasks: Task[]; }
 export interface PendingTask { id: string; titulo: string; vence: string | null; hecha: boolean; pipelineLeadId: string; leadNombre: string; }
 
+export interface Account { id: string; email: string; nombre: string | null; }
+export const getAccounts = () => req<Account[]>('/accounts');
+
 export const getPipeline = () => req<PipelineCard[]>('/pipeline');
 export const addToPipeline = (leadId: string) => req<{ id: string }>('/pipeline', { method: 'POST', body: JSON.stringify({ leadId }) });
 export const updatePipeline = (id: string, body: { stage?: string; ownerId?: string | null }) => req<PipelineLeadRow>(`/pipeline/${id}`, { method: 'PATCH', body: JSON.stringify(body) });

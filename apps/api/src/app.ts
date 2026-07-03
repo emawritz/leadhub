@@ -3,6 +3,7 @@ import cors from '@fastify/cors';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { jwtPlugin } from './auth/jwt-plugin.js';
 import { authRoutes } from './auth/routes.js';
+import { accountsRoutes } from './accounts/routes.js';
 import { leadsRoutes } from './leads/routes.js';
 import { makeScrapeWorker, type RunJob } from './scrape/worker.js';
 import { scrapeRoutes } from './scrape/routes.js';
@@ -19,6 +20,7 @@ export function buildApp(db: NodePgDatabase, opts: { scrapeRunJob?: RunJob } = {
   const worker = makeScrapeWorker(db, runJob);
   app.after(() => {
     authRoutes(app, db);
+    accountsRoutes(app, db);
     leadsRoutes(app, db);
     scrapeRoutes(app, db, worker);
     pipelineRoutes(app, db);
