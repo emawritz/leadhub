@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-// Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core
-// (csv.ts/json.ts usan APIs de Node como node:fs/promises, que rompen el build de navegador).
-import { STAGES, USER_ACTIVITY_TYPES } from '@leadhub/core/stages';
+// Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
+import { STAGES, USER_ACTIVITY_TYPES, ACTIVITY_META, stageColor } from '@leadhub/core/stages';
 import { getPipelineDetail, addActivity, addTask, toggleTask, updatePipeline, removeFromPipeline } from '../api.js';
+
+const NEUTRAL = { icon: '•', color: '#94a3b8' };
 
 export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string; onClose: () => void }) {
   const qc = useQueryClient();
@@ -20,56 +21,72 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   const delMut = useMutation({ mutationFn: () => removeFromPipeline(pipelineId), onSuccess: () => { onClose(); qc.invalidateQueries({ queryKey: ['pipeline'] }); } });
 
   const d = detail.data;
+  const inputCls = 'border border-slate-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-slate-300';
   return (
     <div className="fixed inset-0 bg-black/30 flex justify-end z-50" onClick={onClose}>
-      <div className="w-[28rem] bg-white h-full overflow-y-auto p-4" onClick={(e) => e.stopPropagation()}>
-        {!d ? <p>Cargando…</p> : (
+      <div className="w-[28rem] bg-white h-full overflow-y-auto p-5" onClick={(e) => e.stopPropagation()}>
+        {!d ? <p className="text-slate-400">Cargando…</p> : (
           <>
             <div className="flex justify-between items-start">
-              <div><h2 className="font-bold text-lg">{d.lead.nombreFantasia}</h2>
-                <p className="text-sm text-gray-500">{d.lead.categoria} · {d.lead.localidad}</p>
-                <p className="text-sm">{d.lead.telefono} · {d.lead.email}</p></div>
-              <button onClick={onClose} className="text-gray-400">✕</button>
+              <div>
+                <h2 className="font-bold text-lg text-slate-800">{d.lead.nombreFantasia}</h2>
+                <p className="text-sm text-slate-500">{d.lead.categoria} · {d.lead.localidad}</p>
+                <p className="text-sm text-slate-600">{d.lead.telefono} · {d.lead.email}</p>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600 text-lg leading-none">✕</button>
             </div>
-            <div className="my-3">
-              <label className="text-sm mr-2">Etapa</label>
-              <select value={d.pipeline.stage} onChange={(e) => stageMut.mutate(e.target.value)} className="border p-1 text-sm">
+
+            <div className="mt-4 flex items-center gap-2">
+              <span className="inline-flex items-center gap-1.5 text-sm font-medium">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stageColor(d.pipeline.stage) }} />
+                Etapa
+              </span>
+              <select value={d.pipeline.stage} onChange={(e) => stageMut.mutate(e.target.value)} className={inputCls}>
                 {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
               </select>
-              <button onClick={() => delMut.mutate()} className="ml-3 text-sm text-red-600 underline">Sacar del pipeline</button>
+              <button onClick={() => delMut.mutate()} className="ml-auto text-sm text-red-600 hover:underline">Sacar</button>
             </div>
 
-            <h3 className="font-semibold mt-4">Tareas</h3>
-            <div className="flex gap-1 my-2">
-              <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nueva tarea" className="border p-1 text-sm flex-1" />
-              <input type="datetime-local" value={vence} onChange={(e) => setVence(e.target.value)} className="border p-1 text-sm" />
-              <button disabled={!titulo || taskMut.isPending} onClick={() => taskMut.mutate()} className="bg-black text-white px-2 rounded text-sm">+</button>
-            </div>
-            <ul className="text-sm">
-              {d.tasks.map((t) => (
-                <li key={t.id} className="flex items-center gap-2">
-                  <input type="checkbox" checked={t.hecha} onChange={(e) => toggleMut.mutate({ id: t.id, hecha: e.target.checked })} />
-                  <span className={t.hecha ? 'line-through text-gray-400' : ''}>{t.titulo}</span>
-                  {t.vence && <span className="text-gray-400 text-xs">{new Date(t.vence).toLocaleDateString()}</span>}
-                </li>
-              ))}
-            </ul>
-
-            <h3 className="font-semibold mt-4">Actividad</h3>
-            <div className="flex gap-1 my-2">
-              <select value={tipo} onChange={(e) => setTipo(e.target.value)} className="border p-1 text-sm">
-                {USER_ACTIVITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
-              </select>
-              <input value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} placeholder="Registrar…" className="border p-1 text-sm flex-1" />
-              <button disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className="bg-black text-white px-2 rounded text-sm">+</button>
+            <h3 className="font-semibold text-slate-700 mt-6 mb-2">Tareas</h3>
+            <div className="flex gap-1.5 mb-2">
+              <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nueva tarea" className={`${inputCls} flex-1`} />
+              <input type="datetime-local" value={vence} onChange={(e) => setVence(e.target.value)} className={inputCls} />
+              <button disabled={!titulo || taskMut.isPending} onClick={() => taskMut.mutate()} className="bg-slate-800 text-white px-2.5 rounded text-sm disabled:opacity-40">+</button>
             </div>
             <ul className="text-sm space-y-1">
-              {d.activities.map((a) => (
-                <li key={a.id} className="border-l-2 pl-2">
-                  <span className="text-xs uppercase text-gray-400">{a.tipo}</span> {a.cuerpo}
-                  <div className="text-xs text-gray-400">{new Date(a.createdAt).toLocaleString()}</div>
-                </li>
-              ))}
+              {d.tasks.map((t) => {
+                const venc = t.vence ? new Date(t.vence) : null;
+                const vencida = venc != null && venc.getTime() < Date.now() && !t.hecha;
+                return (
+                  <li key={t.id} className="flex items-center gap-2">
+                    <input type="checkbox" checked={t.hecha} onChange={(e) => toggleMut.mutate({ id: t.id, hecha: e.target.checked })} />
+                    <span className={`flex-1 ${t.hecha ? 'line-through text-slate-400' : 'text-slate-700'}`}>{t.titulo}</span>
+                    {venc && <span className={`text-xs ${vencida ? 'text-red-600 font-medium' : 'text-slate-400'}`}>{venc.toLocaleDateString()}</span>}
+                  </li>
+                );
+              })}
+              {d.tasks.length === 0 && <li className="text-slate-400 text-xs">Sin tareas</li>}
+            </ul>
+
+            <h3 className="font-semibold text-slate-700 mt-6 mb-2">Actividad</h3>
+            <div className="flex gap-1.5 mb-3">
+              <select value={tipo} onChange={(e) => setTipo(e.target.value)} className={inputCls}>
+                {USER_ACTIVITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
+              </select>
+              <input value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} placeholder="Registrar…" className={`${inputCls} flex-1`} />
+              <button disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className="bg-slate-800 text-white px-2.5 rounded text-sm disabled:opacity-40">+</button>
+            </div>
+            <ul className="space-y-2">
+              {d.activities.map((a) => {
+                const meta = (ACTIVITY_META as Record<string, { icon: string; color: string }>)[a.tipo] ?? NEUTRAL;
+                return (
+                  <li key={a.id} className="pl-3 py-0.5" style={{ borderLeft: `3px solid ${meta.color}` }}>
+                    <div className="text-sm text-slate-700"><span className="mr-1">{meta.icon}</span><span className="text-xs uppercase tracking-wide text-slate-400 mr-1">{a.tipo}</span>{a.cuerpo}</div>
+                    <div className="text-xs text-slate-400">{new Date(a.createdAt).toLocaleString()}</div>
+                  </li>
+                );
+              })}
+              {d.activities.length === 0 && <li className="text-slate-400 text-xs">Sin actividad todavía</li>}
             </ul>
           </>
         )}
