@@ -1,9 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { and, desc, eq, lt, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { pipelineCreateSchema, pipelineUpdateSchema, stageLabel, STAGE_IDS } from '@leadhub/core';
+import { pipelineCreateSchema, pipelineUpdateSchema, stageLabel, STAGE_IDS, leadFiltersSchema } from '@leadhub/core';
 import { pipelineLeads, activities, tasks, leads, accounts } from '../db/schema.js';
 import { leadScoreSql } from '../leads/score.js';
+import { leadWhere } from '../leads/query.js';
 import { requireAuth } from '../auth/require-auth.js';
 import { isUuid } from './params.js';
 
@@ -93,6 +94,20 @@ export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
       .from(tasks)
       .where(and(eq(tasks.hecha, false), lt(tasks.vence, new Date())));
     return { ok: true, data: { porEtapa, total, ganado, perdido, conversion, tareasVencidas: venc?.n ?? 0 } };
+  });
+
+  app.post('/pipeline/bulk', { preHandler: [requireAuth] }, async (req, reply) => {
+    const parsed = leadFiltersSchema.safeParse(req.query);
+    if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Filtros inválidos' });
+    const where = leadWhere(parsed.data);
+    const matched = await db.select({ id: leads.id }).from(leads).where(where);
+    if (matched.length === 0) return { ok: true, data: { matched: 0, added: 0, skipped: 0 } };
+    const inserted = await db
+      .insert(pipelineLeads)
+      .values(matched.map((m) => ({ leadId: m.id })))
+      .onConflictDoNothing({ target: pipelineLeads.leadId })
+      .returning({ id: pipelineLeads.id });
+    return { ok: true, data: { matched: matched.length, added: inserted.length, skipped: matched.length - inserted.length } };
   });
 
   app.get('/pipeline/:id', { preHandler: [requireAuth] }, async (req, reply) => {

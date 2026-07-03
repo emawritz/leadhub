@@ -25,7 +25,7 @@ export default function JobsList({ jobs }: { jobs: ScrapeJob[] }) {
               <div className="h-1.5 bg-accent rounded-pill" style={{ width: `${Math.round((j.done / j.total) * 100)}%` }} />
             </div>
           )}
-          {j.status === 'done' && <Link to="/" className="btn-ghost mt-3 inline-flex px-4 py-1.5 text-[13px]">Ver en el explorador</Link>}
+          {j.status === 'done' && <Link to={`/?q=${encodeURIComponent(j.query)}`} className="btn-ghost mt-3 inline-flex px-4 py-1.5 text-[13px]">Ver en el explorador</Link>}
         </li>
       ))}
     </ul>
