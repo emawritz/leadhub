@@ -17,7 +17,9 @@ export default function Tareas() {
   return (
     <div className="p-6 max-w-2xl">
       <h1 className="text-xl font-semibold text-ink tracking-tight mb-4">Tareas pendientes</h1>
-      {tasks.isLoading ? (
+      {tasks.isError ? (
+        <EmptyState icon="⚠️" title="No se pudieron cargar las tareas" />
+      ) : tasks.isLoading ? (
         <Loading />
       ) : tasks.data?.length === 0 ? (
         <EmptyState icon="🎉" title="Sin tareas pendientes" />

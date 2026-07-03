@@ -62,7 +62,11 @@ export default function Explorer() {
             </button>
           </div>
         </div>
-        {leads.isLoading || !leads.data ? (
+        {leads.isError ? (
+          <EmptyState icon="⚠️" title="No se pudieron cargar los leads" hint="Reintentá en un momento" />
+        ) : leads.isLoading ? (
+          <Loading />
+        ) : !leads.data ? (
           <Loading />
         ) : leads.data.total === 0 ? (
           <EmptyState icon="🔍" title="Sin resultados" hint="Probá con otros filtros" />

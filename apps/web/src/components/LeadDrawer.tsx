@@ -5,6 +5,7 @@ import { STAGES, USER_ACTIVITY_TYPES, ACTIVITY_META, stageColor } from '@leadhub
 import { getPipelineDetail, addActivity, addTask, toggleTask, updatePipeline, removeFromPipeline, getAccounts } from '../api.js';
 import { useToast } from '../toast.js';
 import Loading from './Loading.js';
+import EmptyState from './EmptyState.js';
 
 function soloDigitos(tel: string | null | undefined): string { return (tel ?? '').replace(/\D/g, ''); }
 
@@ -59,7 +60,11 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   return (
     <div className="fixed inset-0 bg-black/30 flex justify-end z-50" onClick={onClose}>
       <div className="w-[28rem] bg-surface border-l border-hairline h-full overflow-y-auto p-5" onClick={(e) => e.stopPropagation()}>
-        {!d ? <Loading /> : (
+        {detail.isError ? (
+          <EmptyState icon="⚠️" title="No se pudo cargar el lead" />
+        ) : !d ? (
+          <Loading />
+        ) : (
           <>
             {/* Cabecera */}
             <div>

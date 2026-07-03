@@ -86,6 +86,7 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
     if (card && card.stage !== stage) move.mutate({ id, stage });
   }
 
+  if (pipeline.isError) return <EmptyState icon="⚠️" title="No se pudo cargar el pipeline" hint="Reintentá en un momento" />;
   if (pipeline.isLoading) return <Loading />;
   if (all.length === 0) return <EmptyState icon="📋" title="Pipeline vacío" hint="Agregá leads desde Explorar" />;
 
