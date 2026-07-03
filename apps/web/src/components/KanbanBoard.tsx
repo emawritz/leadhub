@@ -86,7 +86,7 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
     <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
       <div className="flex gap-3 overflow-x-auto p-4">
         {STAGES.map((s) => (
-          <Column key={s.id} stageId={s.id} label={s.label} cards={cards.filter((c) => c.stage === s.id)} onOpen={onOpen} />
+          <Column key={s.id} stageId={s.id} label={s.label} cards={cards.filter((c) => c.stage === s.id).sort((a, b) => b.score - a.score)} onOpen={onOpen} />
         ))}
       </div>
       <DragOverlay dropAnimation={reduced ? null : undefined}>
