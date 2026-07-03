@@ -50,3 +50,25 @@ export const exportLogs = pgTable('export_logs', {
 });
 
 // Columnas generadas + tsvector + índices se agregan por SQL crudo en la migración (Step 3).
+
+export const scrapeJobs = pgTable('scrape_jobs', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  accountId: uuid('account_id').notNull().references(() => accounts.id),
+  query: text('query').notNull(),
+  location: text('location').notNull(),
+  max: integer('max').notNull().default(40),
+  enrich: boolean('enrich').notNull().default(true),
+  excludeChains: boolean('exclude_chains').notNull().default(true),
+  status: text('status').notNull().default('queued'),
+  phase: text('phase').notNull().default(''),
+  done: integer('done').notNull().default(0),
+  total: integer('total').notNull().default(0),
+  leadsFound: integer('leads_found').notNull().default(0),
+  inserted: integer('inserted').notNull().default(0),
+  updated: integer('updated').notNull().default(0),
+  error: text('error').notNull().default(''),
+  outputPath: text('output_path').notNull().default(''),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  startedAt: timestamp('started_at', { withTimezone: true }),
+  finishedAt: timestamp('finished_at', { withTimezone: true }),
+});

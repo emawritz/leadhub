@@ -8,6 +8,13 @@
       "when": 1783030699654,
       "tag": "0000_young_grandmaster",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1783037368332,
+      "tag": "0001_chubby_nehzno",
+      "breakpoints": true
     }
   ]
 }
