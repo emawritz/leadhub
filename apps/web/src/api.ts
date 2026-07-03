@@ -19,7 +19,7 @@ export type Facets = Record<'provincia' | 'localidad' | 'categoria' | 'fuente', 
 export const getFacets = () => req<Facets>('/leads/facets');
 // El endpoint /leads devuelve la fila completa de la tabla `leads` (incluye `id`),
 // que no forma parte del tipo `Lead` de @leadhub/core (representa el lead "crudo" pre-inserción).
-export type LeadRow = Lead & { id: string };
+export type LeadRow = Lead & { id: string; score: number };
 export const getLeads = (qs: string) => req<{ items: LeadRow[]; total: number; page: number; pageSize: number }>(`/leads?${qs}`);
 
 export interface ScrapeJob {
@@ -38,6 +38,7 @@ export interface PipelineCard {
   leadId: string; nombre: string; categoria: string; localidad: string; telefono: string; email: string;
   pendientes: number;
   proximoVence: string | null;
+  score: number;
 }
 export interface PipelineLeadRow {
   id: string; leadId: string; ownerId: string | null; stage: string; createdAt: string; updatedAt: string;

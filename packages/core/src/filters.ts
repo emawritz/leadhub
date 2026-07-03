@@ -16,9 +16,10 @@ export const leadFiltersSchema = z.object({
   hasWhatsapp: boolish,
   hasWeb: boolish,
   hasCuit: boolish,
+  soloAlto: boolish,
   page: z.coerce.number().int().min(1).default(1),
   pageSize: z.coerce.number().int().min(1).default(50).transform((v) => Math.min(v, 100)),
-  sort: z.enum(['nombre', 'localidad', 'fecha']).default('nombre'),
+  sort: z.enum(['nombre', 'localidad', 'fecha', 'prioridad']).default('nombre'),
 });
 
 export type LeadFilters = z.infer<typeof leadFiltersSchema>;

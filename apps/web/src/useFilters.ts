@@ -3,10 +3,11 @@ import { useSearchParams } from 'react-router-dom';
 export type UiFilters = {
   q?: string; provincia?: string[]; localidad?: string[]; categoria?: string[]; fuente?: string[];
   hasEmail?: boolean; hasTelefono?: boolean; hasWhatsapp?: boolean; hasWeb?: boolean; hasCuit?: boolean;
+  soloAlto?: boolean;
   page?: number; sort?: string;
 };
 const ARRAYS = ['provincia', 'localidad', 'categoria', 'fuente'] as const;
-const BOOLS = ['hasEmail', 'hasTelefono', 'hasWhatsapp', 'hasWeb', 'hasCuit'] as const;
+const BOOLS = ['hasEmail', 'hasTelefono', 'hasWhatsapp', 'hasWeb', 'hasCuit', 'soloAlto'] as const;
 
 export function filtersToQuery(f: UiFilters): string {
   const p = new URLSearchParams();

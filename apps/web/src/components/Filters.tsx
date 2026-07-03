@@ -20,6 +20,7 @@ const BOOL_FIELDS = [
   ['hasWhatsapp', 'con WhatsApp'],
   ['hasWeb', 'con sitio web'],
   ['hasCuit', 'con CUIT'],
+  ['soloAlto', 'Solo prioridad Alta'],
 ] as const;
 
 export default function Filters({ facets, filters, setFilters }: Props) {

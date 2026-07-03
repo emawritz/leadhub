@@ -1,7 +1,23 @@
 import { CLOSED_STAGES, stageLabel } from '@leadhub/core/stages';
+import { scoreLead } from '@leadhub/core/score';
 import type { LeadRow } from '../api.js';
+import ScoreBadge from './ScoreBadge.js';
 
 type Props = { items: LeadRow[]; pipelineByLead: Map<string, string>; onAdd: (leadId: string) => void };
+
+function breakdown(lead: LeadRow): string {
+  const signals: [string, boolean][] = [
+    ['tel', !!lead.telefono],
+    ['email', !!lead.email],
+    ['web', !!lead.sitioWeb],
+    ['redes', !!(lead.instagram || lead.facebook)],
+    ['wa', !!lead.whatsapp],
+    ['cuit', !!lead.cuit],
+    ['GMaps', lead.fuente === 'Google Maps'],
+  ];
+  const desglose = signals.map(([label, ok]) => `${label} ${ok ? '✓' : '✗'}`).join(' · ');
+  return `Prioridad ${scoreLead(lead)} — ${desglose}`;
+}
 
 export default function LeadsTable({ items, pipelineByLead, onAdd }: Props) {
   return (
@@ -17,6 +33,7 @@ export default function LeadsTable({ items, pipelineByLead, onAdd }: Props) {
             <th className="p-2">CUIT</th>
             <th className="p-2">Fuente</th>
             <th className="p-2">Redes</th>
+            <th className="p-2">Prioridad</th>
             <th className="p-2">Pipeline</th>
           </tr>
         </thead>
@@ -53,6 +70,7 @@ export default function LeadsTable({ items, pipelineByLead, onAdd }: Props) {
                   )}
                 </div>
               </td>
+              <td className="p-2"><ScoreBadge score={lead.score} title={breakdown(lead)} /></td>
               <td className="p-2">
                 {(() => {
                   const stage = pipelineByLead.get(lead.id);

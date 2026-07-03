@@ -2,6 +2,7 @@ import { useDraggable } from '@dnd-kit/core';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
 import { stageColor } from '@leadhub/core/stages';
 import type { PipelineCard } from '../api.js';
+import ScoreBadge from './ScoreBadge.js';
 
 /** Color estable derivado de un string (para el avatar del dueño). */
 function avatarColor(seed: string): string {
@@ -61,6 +62,7 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
           {card.pendientes > 0 && (
             <span className="text-[11px] px-1.5 py-0.5 rounded-sm bg-accent text-on-accent font-medium">{card.pendientes}</span>
           )}
+          <ScoreBadge score={card.score} />
         </div>
       </div>
     </div>

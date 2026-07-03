@@ -22,9 +22,21 @@ export default function Explorer() {
       <main className="flex-1">
         <div className="flex justify-between items-center mb-3">
           <span className="text-muted text-[15px]">{leads.data?.total ?? 0} resultados</span>
-          <button onClick={() => downloadCsv(qs)} className="btn">
-            Exportar CSV
-          </button>
+          <div className="flex gap-2 items-center">
+            <select
+              value={filters.sort ?? 'nombre'}
+              onChange={(e) => setFilters({ ...filters, sort: e.target.value, page: 1 })}
+              className="input"
+            >
+              <option value="prioridad">Prioridad</option>
+              <option value="nombre">Nombre</option>
+              <option value="localidad">Localidad</option>
+              <option value="fecha">Fecha</option>
+            </select>
+            <button onClick={() => downloadCsv(qs)} className="btn">
+              Exportar CSV
+            </button>
+          </div>
         </div>
         {leads.data && (
           <LeadsTable items={leads.data.items} pipelineByLead={pipelineByLead} onAdd={(id) => add.mutate(id)} />
