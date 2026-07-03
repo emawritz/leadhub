@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { DndContext, DragOverlay, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import type { BoardFilter } from './BoardFilters.js';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
 import { STAGES, CLOSED_STAGES, stageColor } from '@leadhub/core/stages';
 import { getPipeline, updatePipeline, type PipelineCard } from '../api.js';
@@ -34,7 +35,7 @@ function Column({ stageId, label, cards, onOpen }: { stageId: string; label: str
   );
 }
 
-export default function KanbanBoard({ onOpen }: { onOpen: (id: string) => void }) {
+export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) => void; filter?: BoardFilter }) {
   const qc = useQueryClient();
   const reduced = useReducedMotion();
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -51,7 +52,14 @@ export default function KanbanBoard({ onOpen }: { onOpen: (id: string) => void }
     onSettled: () => qc.invalidateQueries({ queryKey: ['pipeline'] }),
   });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
-  const cards = pipeline.data ?? [];
+  const all = pipeline.data ?? [];
+  const cards = all.filter((c) => {
+    if (filter?.q && !c.nombre.toLowerCase().includes(filter.q.toLowerCase())) return false;
+    if (filter?.owner === 'none' && c.ownerId != null) return false;
+    if (filter?.owner && filter.owner !== 'none' && c.ownerId !== filter.owner) return false;
+    if (filter?.vencidas) { const v = c.proximoVence ? new Date(c.proximoVence).getTime() : null; if (v == null || v >= Date.now()) return false; }
+    return true;
+  });
   const activeCard = activeId ? cards.find((c) => c.id === activeId) ?? null : null;
 
   function onDragStart(e: DragStartEvent) { setActiveId(String(e.active.id)); }
