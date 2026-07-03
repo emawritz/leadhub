@@ -53,3 +53,11 @@ export interface Enrichment extends Socials {
   email: string;
   cuit: string;
 }
+
+export interface ProgressEvent {
+  phase: 'collect' | 'visit' | 'enrich' | 'export' | 'done';
+  done?: number;
+  total?: number;
+  leadsFound?: number;
+  name?: string;
+}

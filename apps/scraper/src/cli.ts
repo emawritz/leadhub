@@ -4,7 +4,7 @@ import { Command } from 'commander';
 import { runScrape } from './scraper/maps-scraper.js';
 import { logSuccess, logError } from './utils/logger.js';
 import { resolveOutputPaths, writeCsv, writeJson } from '@leadhub/core';
-import type { ScraperOptions } from '@leadhub/core';
+import type { ProgressEvent, ScraperOptions } from '@leadhub/core';
 
 const program = new Command();
 
@@ -23,6 +23,7 @@ program
   .option('--output <path>', 'ruta de salida (sin él: output/{query}_{fecha})')
   .option('--resume', 'continuar desde checkpoint', false)
   .option('--exclude-chains', 'descartar cadenas conocidas (Coto, Carrefour, Vital, etc.)', false)
+  .option('--progress-json', 'emitir progreso NDJSON a stdout', false)
   .action(async (opts) => {
     const options: ScraperOptions = {
       query: opts.query,
@@ -36,7 +37,10 @@ program
       excludeChains: Boolean(opts.excludeChains),
     };
     try {
-      const leads = await runScrape(options);
+      const onProgress = opts.progressJson
+        ? (ev: ProgressEvent) => process.stdout.write(`${JSON.stringify(ev)}\n`)
+        : undefined;
+      const leads = await runScrape(options, onProgress);
       const date = new Date().toISOString().slice(0, 10);
       const { csv, json } = resolveOutputPaths(options.output, options.query, date);
       await writeCsv(leads, csv);

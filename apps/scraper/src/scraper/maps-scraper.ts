@@ -11,7 +11,9 @@ import { safeExtract } from '../utils/safe-extract.js';
 import { jitter, sleep } from '../utils/rate-limiter.js';
 import { logSuccess, logWarn, logError, logInfo, createProgressBar } from '../utils/logger.js';
 import { parseCoordinates, dedupeLeads, normalizeUrl, slugify } from '@leadhub/core';
-import type { Enrichment, Lead, RawBusiness, ScraperOptions } from '@leadhub/core';
+import type {
+  Enrichment, Lead, ProgressEvent, RawBusiness, ScraperOptions,
+} from '@leadhub/core';
 
 const CHECKPOINT_EVERY = 10;
 const CONSENT_HOSTS = ['consent.google.com'];
@@ -147,7 +149,10 @@ function toLead(b: RawBusiness, enrichment: Enrichment, location: string, now: s
   };
 }
 
-export async function runScrape(options: ScraperOptions): Promise<Lead[]> {
+export async function runScrape(
+  options: ScraperOptions,
+  onProgress?: (ev: ProgressEvent) => void,
+): Promise<Lead[]> {
   const date = new Date().toISOString().slice(0, 10);
   const cpPath = checkpointPath(options.query, date);
   const processed = options.resume ? await loadProcessed(cpPath) : new Set<string>();
@@ -178,29 +183,35 @@ export async function runScrape(options: ScraperOptions): Promise<Lead[]> {
     }
     logSuccess(`${candidates.length} negocios para procesar (${processed.size} ya hechos).`);
 
-    const bar = createProgressBar(candidates.length);
+    const useBar = !onProgress;
+    const bar = useBar ? createProgressBar(candidates.length) : null;
+    onProgress?.({ phase: 'collect', total: candidates.length });
     for (const [i, { url }] of candidates.entries()) {
       try {
         const biz = await scrapeBusiness(page, url);
         if (options.excludeChains && isKnownChain(biz.name)) {
           logWarn(`Omitido (cadena): ${biz.name}`);
-          bar.increment({ name: `omitido: ${biz.name.slice(0, 22)}` });
+          bar?.increment({ name: `omitido: ${biz.name.slice(0, 22)}` });
+          onProgress?.({ phase: 'visit', done: i + 1, total: candidates.length });
         } else {
           const enrichment = options.enrich && biz.website
             ? await enrichWebsite(context, biz.website)
             : { email: '', cuit: '', instagram: '', facebook: '', whatsapp: '' };
           leads.push(toLead(biz, enrichment, options.location, new Date().toISOString()));
-          bar.increment({ name: biz.name.slice(0, 30) });
+          bar?.increment({ name: biz.name.slice(0, 30) });
+          onProgress?.({
+            phase: 'visit', done: i + 1, total: candidates.length, name: biz.name,
+          });
         }
       } catch (err) {
-        if (err instanceof Error && err.message.includes('CAPTCHA')) { bar.stop(); throw err; }
+        if (err instanceof Error && err.message.includes('CAPTCHA')) { bar?.stop(); throw err; }
         logError(`Falló ${url}: ${(err as Error).message}`);
       }
       doneUrls.push(url);
       if ((i + 1) % CHECKPOINT_EVERY === 0) await saveCheckpoint(cpPath, doneUrls);
       await sleep(jitter(options.delay));
     }
-    bar.stop();
+    bar?.stop();
     await saveCheckpoint(cpPath, doneUrls);
   } finally {
     await context.close();
@@ -208,5 +219,6 @@ export async function runScrape(options: ScraperOptions): Promise<Lead[]> {
 
   const deduped = dedupeLeads(leads);
   logSuccess(`${deduped.length} leads únicos extraídos.`);
+  onProgress?.({ phase: 'done', leadsFound: deduped.length });
   return deduped;
 }
