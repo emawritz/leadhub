@@ -14,7 +14,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   const [titulo, setTitulo] = useState('');
   const [vence, setVence] = useState('');
   const actMut = useMutation({ mutationFn: () => addActivity(pipelineId, { tipo, cuerpo }), onSuccess: () => { setCuerpo(''); inval(); } });
-  const taskMut = useMutation({ mutationFn: () => addTask(pipelineId, { titulo, vence: vence || undefined }), onSuccess: () => { setTitulo(''); setVence(''); inval(); } });
+  const taskMut = useMutation({ mutationFn: () => addTask(pipelineId, { titulo, vence: vence ? new Date(vence).toISOString() : undefined }), onSuccess: () => { setTitulo(''); setVence(''); inval(); } });
   const toggleMut = useMutation({ mutationFn: (t: { id: string; hecha: boolean }) => toggleTask(t.id, t.hecha), onSuccess: inval });
   const stageMut = useMutation({ mutationFn: (stage: string) => updatePipeline(pipelineId, { stage }), onSuccess: inval });
   const delMut = useMutation({ mutationFn: () => removeFromPipeline(pipelineId), onSuccess: () => { onClose(); qc.invalidateQueries({ queryKey: ['pipeline'] }); } });
@@ -43,7 +43,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
             <div className="flex gap-1 my-2">
               <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nueva tarea" className="border p-1 text-sm flex-1" />
               <input type="datetime-local" value={vence} onChange={(e) => setVence(e.target.value)} className="border p-1 text-sm" />
-              <button disabled={!titulo} onClick={() => taskMut.mutate()} className="bg-black text-white px-2 rounded text-sm">+</button>
+              <button disabled={!titulo || taskMut.isPending} onClick={() => taskMut.mutate()} className="bg-black text-white px-2 rounded text-sm">+</button>
             </div>
             <ul className="text-sm">
               {d.tasks.map((t) => (
@@ -61,7 +61,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                 {USER_ACTIVITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
               <input value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} placeholder="Registrar…" className="border p-1 text-sm flex-1" />
-              <button disabled={!cuerpo} onClick={() => actMut.mutate()} className="bg-black text-white px-2 rounded text-sm">+</button>
+              <button disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className="bg-black text-white px-2 rounded text-sm">+</button>
             </div>
             <ul className="text-sm space-y-1">
               {d.activities.map((a) => (
