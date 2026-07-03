@@ -25,53 +25,53 @@ export default function LeadsTable({ items, pipelineByLead, onAdd }: Props) {
       <table className="w-full text-sm text-left">
         <thead className="border-b border-hairline text-muted text-[13px]">
           <tr>
-            <th className="p-2">Razón social</th>
-            <th className="p-2">Categoría</th>
-            <th className="p-2">Localidad / Provincia</th>
-            <th className="p-2">Teléfono</th>
-            <th className="p-2">Email</th>
-            <th className="p-2">CUIT</th>
-            <th className="p-2">Fuente</th>
-            <th className="p-2">Redes</th>
+            <th className="p-2">Lead</th>
+            <th className="p-2">Ubicación</th>
+            <th className="p-2">Contacto</th>
+            <th className="p-2">Datos</th>
             <th className="p-2">Prioridad</th>
-            <th className="p-2">Pipeline</th>
+            <th className="p-2">Estado</th>
           </tr>
         </thead>
         <tbody>
           {items.map((lead, i) => (
             <tr key={lead.id} className="border-t border-hairline hover:bg-parchment">
-              <td className="p-2 text-ink">{lead.razonSocial || lead.nombreFantasia}</td>
-              <td className="p-2 text-ink">{lead.categoria}</td>
-              <td className="p-2 text-ink">
+              <td className="p-2 align-top">
+                <div className="text-ink font-medium truncate max-w-[16rem]">{lead.razonSocial || lead.nombreFantasia}</div>
+                <div className="text-muted text-[12px] truncate">{lead.categoria}</div>
+              </td>
+              <td className="p-2 align-top text-muted text-[13px]">
                 {lead.localidad}
                 {lead.localidad && lead.provincia ? ', ' : ''}
                 {lead.provincia}
               </td>
-              <td className="p-2 text-ink">{lead.telefono}</td>
-              <td className="p-2 text-ink">{lead.email}</td>
-              <td className="p-2 text-ink">{lead.cuit}</td>
-              <td className="p-2 text-ink">{lead.fuente}</td>
-              <td className="p-2">
-                <div className="flex gap-2">
+              <td className="p-2 align-top">
+                <div className="text-ink text-[13px]">{lead.telefono}</div>
+                <div className="text-muted text-[12px] truncate">{lead.email}</div>
+                <div className="flex gap-2 text-accent text-[12px]">
                   {lead.instagram && (
-                    <a href={lead.instagram} target="_blank" rel="noreferrer" className="text-accent underline">
+                    <a href={lead.instagram} target="_blank" rel="noreferrer" className="underline">
                       IG
                     </a>
                   )}
                   {lead.facebook && (
-                    <a href={lead.facebook} target="_blank" rel="noreferrer" className="text-accent underline">
+                    <a href={lead.facebook} target="_blank" rel="noreferrer" className="underline">
                       FB
                     </a>
                   )}
                   {lead.whatsapp && (
-                    <a href={lead.whatsapp} target="_blank" rel="noreferrer" className="text-accent underline">
+                    <a href={lead.whatsapp} target="_blank" rel="noreferrer" className="underline">
                       WA
                     </a>
                   )}
                 </div>
               </td>
-              <td className="p-2"><ScoreBadge score={lead.score} title={breakdown(lead)} /></td>
-              <td className="p-2">
+              <td className="p-2 align-top">
+                <div className="text-ink text-[13px]">{lead.cuit}</div>
+                <div className="text-muted text-[12px]">{lead.fuente}</div>
+              </td>
+              <td className="p-2 align-top"><ScoreBadge score={lead.score} title={breakdown(lead)} /></td>
+              <td className="p-2 align-top">
                 {(() => {
                   const stage = pipelineByLead.get(lead.id);
                   if (stage === undefined) return <button onClick={() => onAdd(lead.id)} className="text-sm text-accent underline">→ Pipeline</button>;
