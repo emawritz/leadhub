@@ -1,7 +1,8 @@
-import { and, inArray, eq, desc, asc, sql } from 'drizzle-orm';
+import { and, inArray, eq, desc, asc, sql, getTableColumns } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import type { LeadFilters } from '@leadhub/core';
 import { leads } from '../db/schema.js';
+import { leadScoreSql } from './score.js';
 
 function conditions(f: LeadFilters) {
   const c = [];
@@ -15,6 +16,7 @@ function conditions(f: LeadFilters) {
   if (f.hasWhatsapp) c.push(eq(leads.hasWhatsapp, true));
   if (f.hasWeb) c.push(eq(leads.hasWeb, true));
   if (f.hasCuit) c.push(eq(leads.hasCuit, true));
+  if (f.soloAlto) c.push(sql`${leadScoreSql()} >= 70`);
   return c.length ? and(...c) : undefined;
 }
 
@@ -22,6 +24,7 @@ const SORTS = {
   nombre: asc(leads.nombreFantasia),
   localidad: asc(leads.localidad),
   fecha: desc(leads.fechaExtraccion),
+  prioridad: desc(leadScoreSql()),
 };
 
 export function buildLeadsQuery(db: NodePgDatabase, f: LeadFilters) {
@@ -30,7 +33,7 @@ export function buildLeadsQuery(db: NodePgDatabase, f: LeadFilters) {
   // Drizzle omite la cláusula OFFSET cuando el valor es 0 (chequeo truthy interno).
   // Se envuelve en sql`` para forzar que la cláusula se emita siempre.
   const offsetSql = sql`${offsetValue}` as unknown as number;
-  const rows = db.select().from(leads).where(where)
+  const rows = db.select({ ...getTableColumns(leads), score: leadScoreSql() }).from(leads).where(where)
     .orderBy(SORTS[f.sort]).limit(f.pageSize).offset(offsetSql);
   const count = db.select({ n: sql<number>`count(*)::int` }).from(leads).where(where);
   return { rows, count };
