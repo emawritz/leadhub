@@ -36,13 +36,13 @@ export default function Filters({ facets, filters, setFilters }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <label htmlFor="filters-q" className="block text-sm font-medium mb-1">
+        <label htmlFor="filters-q" className="block text-sm font-medium mb-1 text-ink">
           Buscar
         </label>
         <input
           id="filters-q"
           type="text"
-          className="border p-2 w-full rounded"
+          className="input w-full"
           placeholder="Razón social, categoría..."
           value={filters.q ?? ''}
           onChange={(e) => setFilters({ ...filters, q: e.target.value || undefined, page: 1 })}
@@ -51,7 +51,7 @@ export default function Filters({ facets, filters, setFilters }: Props) {
 
       <div className="space-y-1">
         {BOOL_FIELDS.map(([field, label]) => (
-          <label key={field} className="flex items-center gap-2 text-sm">
+          <label key={field} className="flex items-center gap-2 text-sm text-muted">
             <input
               type="checkbox"
               aria-label={label}
@@ -65,17 +65,17 @@ export default function Filters({ facets, filters, setFilters }: Props) {
 
       {ARRAY_FIELDS.map(([field, label]) => (
         <fieldset key={field}>
-          <legend className="text-sm font-medium mb-1">{label}</legend>
+          <legend className="text-sm font-medium mb-1 text-ink">{label}</legend>
           <div className="max-h-48 overflow-y-auto space-y-1">
             {(facets[field] ?? []).map(({ value, count }) => (
-              <label key={value} className="flex items-center gap-2 text-sm">
+              <label key={value} className="flex items-center gap-2 text-sm text-muted">
                 <input
                   type="checkbox"
                   checked={(filters[field] ?? []).includes(value)}
                   onChange={() => toggleArrayValue(field, value)}
                 />
                 <span className="flex-1">{value}</span>
-                <span className="text-gray-400">{count}</span>
+                <span className="text-faint">{count}</span>
               </label>
             ))}
           </div>

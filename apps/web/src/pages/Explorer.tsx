@@ -15,14 +15,14 @@ export default function Explorer() {
   const pipelineByLead = new Map((pipeline.data ?? []).map((p) => [p.leadId, p.stage] as const));
 
   return (
-    <div className="flex gap-6 p-6">
+    <div className="flex gap-6 p-6 bg-canvas min-h-screen">
       <aside className="w-72 shrink-0">
         {facets.data && <Filters facets={facets.data} filters={filters} setFilters={setFilters} />}
       </aside>
       <main className="flex-1">
         <div className="flex justify-between items-center mb-3">
-          <span>{leads.data?.total ?? 0} resultados</span>
-          <button onClick={() => downloadCsv(qs)} className="bg-black text-white px-4 py-2 rounded">
+          <span className="text-muted text-[15px]">{leads.data?.total ?? 0} resultados</span>
+          <button onClick={() => downloadCsv(qs)} className="btn">
             Exportar CSV
           </button>
         </div>
