@@ -17,7 +17,10 @@ async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
 export const login = (email: string, password: string) => req<{ token: string }>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
 export type Facets = Record<'provincia' | 'localidad' | 'categoria' | 'fuente', { value: string; count: number }[]>;
 export const getFacets = () => req<Facets>('/leads/facets');
-export const getLeads = (qs: string) => req<{ items: Lead[]; total: number; page: number; pageSize: number }>(`/leads?${qs}`);
+// El endpoint /leads devuelve la fila completa de la tabla `leads` (incluye `id`),
+// que no forma parte del tipo `Lead` de @leadhub/core (representa el lead "crudo" pre-inserción).
+export type LeadRow = Lead & { id: string };
+export const getLeads = (qs: string) => req<{ items: LeadRow[]; total: number; page: number; pageSize: number }>(`/leads?${qs}`);
 
 export interface ScrapeJob {
   id: string; query: string; location: string;
@@ -29,6 +32,26 @@ export interface ScrapeJob {
 export const createScrape = (body: { query: string; location: string; max?: number; enrich?: boolean; excludeChains?: boolean }) =>
   req<ScrapeJob>('/scrape', { method: 'POST', body: JSON.stringify(body) });
 export const listScrapes = () => req<ScrapeJob[]>('/scrape');
+
+export interface PipelineCard {
+  id: string; stage: string; ownerId: string | null; ownerNombre: string | null;
+  leadId: string; nombre: string; categoria: string; localidad: string; telefono: string; email: string;
+  pendientes: number;
+}
+export interface Activity { id: string; tipo: string; cuerpo: string; createdAt: string; }
+export interface Task { id: string; titulo: string; vence: string | null; hecha: boolean; completedAt: string | null; }
+export interface PipelineDetail { pipeline: { id: string; stage: string; ownerId: string | null }; lead: Lead; activities: Activity[]; tasks: Task[]; }
+export interface PendingTask { id: string; titulo: string; vence: string | null; hecha: boolean; pipelineLeadId: string; leadNombre: string; }
+
+export const getPipeline = () => req<PipelineCard[]>('/pipeline');
+export const addToPipeline = (leadId: string) => req<{ id: string }>('/pipeline', { method: 'POST', body: JSON.stringify({ leadId }) });
+export const updatePipeline = (id: string, body: { stage?: string; ownerId?: string | null }) => req<PipelineCard>(`/pipeline/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+export const removeFromPipeline = (id: string) => req<{ id: string }>(`/pipeline/${id}`, { method: 'DELETE' });
+export const getPipelineDetail = (id: string) => req<PipelineDetail>(`/pipeline/${id}`);
+export const addActivity = (id: string, body: { tipo: string; cuerpo: string }) => req<Activity>(`/pipeline/${id}/activities`, { method: 'POST', body: JSON.stringify(body) });
+export const addTask = (id: string, body: { titulo: string; vence?: string }) => req<Task>(`/pipeline/${id}/tasks`, { method: 'POST', body: JSON.stringify(body) });
+export const toggleTask = (taskId: string, hecha: boolean) => req<Task>(`/tasks/${taskId}`, { method: 'PATCH', body: JSON.stringify({ hecha }) });
+export const getPendingTasks = () => req<PendingTask[]>('/tasks');
 
 export async function downloadCsv(qs: string) {
   const res = await fetch(`/api/leads/export?${qs}`, { method: 'POST', headers: token ? { authorization: `Bearer ${token}` } : {} });

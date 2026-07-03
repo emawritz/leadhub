@@ -10,6 +10,8 @@ export default function Nav() {
       <span className="font-bold mr-4">LeadHub</span>
       <NavLink to="/" className={cls} end>Explorar</NavLink>
       <NavLink to="/buscar" className={cls}>Buscar</NavLink>
+      <NavLink to="/pipeline" className={cls}>Pipeline</NavLink>
+      <NavLink to="/tareas" className={cls}>Tareas</NavLink>
       <button onClick={signOut} className="ml-auto text-sm text-gray-600 hover:underline">Salir</button>
     </nav>
   );
