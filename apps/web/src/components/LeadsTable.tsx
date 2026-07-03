@@ -1,4 +1,4 @@
-import { CLOSED_STAGES, stageLabel } from '@leadhub/core/stages';
+import { stageColor, stageLabel } from '@leadhub/core/stages';
 import { scoreLead } from '@leadhub/core/score';
 import type { LeadRow } from '../api.js';
 import ScoreBadge from './ScoreBadge.js';
@@ -75,8 +75,12 @@ export default function LeadsTable({ items, pipelineByLead, onAdd }: Props) {
                 {(() => {
                   const stage = pipelineByLead.get(lead.id);
                   if (stage === undefined) return <button onClick={() => onAdd(lead.id)} className="text-sm text-accent underline">→ Pipeline</button>;
-                  if ((CLOSED_STAGES as readonly string[]).includes(stage)) return <span className="text-muted text-sm">✓ {stageLabel(stage)}</span>;
-                  return <span className="text-accent text-sm">✓ en pipeline</span>;
+                  return (
+                    <span className="inline-flex items-center gap-1.5 text-sm text-ink">
+                      <span className="w-2 h-2 rounded-pill shrink-0" style={{ backgroundColor: stageColor(stage) }} />
+                      {stageLabel(stage)}
+                    </span>
+                  );
                 })()}
               </td>
             </tr>

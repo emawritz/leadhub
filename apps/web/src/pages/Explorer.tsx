@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { getFacets, getLeads, downloadCsv, getPipeline, addToPipeline } from '../api.js';
+import { getFacets, getLeads, downloadCsv, getPipeline, addToPipeline, bulkAddToPipeline } from '../api.js';
 import { useFilters, filtersToQuery } from '../useFilters.js';
 import Filters from '../components/Filters.js';
 import LeadsTable from '../components/LeadsTable.js';
@@ -12,6 +12,10 @@ export default function Explorer() {
   const leads = useQuery({ queryKey: ['leads', qs], queryFn: () => getLeads(qs) });
   const pipeline = useQuery({ queryKey: ['pipeline'], queryFn: getPipeline });
   const add = useMutation({ mutationFn: addToPipeline, onSuccess: () => qc.invalidateQueries({ queryKey: ['pipeline'] }) });
+  const bulk = useMutation({
+    mutationFn: () => bulkAddToPipeline(qs),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); },
+  });
   const pipelineByLead = new Map((pipeline.data ?? []).map((p) => [p.leadId, p.stage] as const));
 
   return (
@@ -36,8 +40,18 @@ export default function Explorer() {
             <button onClick={() => downloadCsv(qs)} className="btn">
               Exportar CSV
             </button>
+            <button
+              onClick={() => bulk.mutate()}
+              disabled={bulk.isPending || !(leads.data?.total)}
+              className="btn-ghost"
+            >
+              {bulk.isPending ? 'Agregando…' : `→ Agregar ${leads.data?.total ?? 0} al pipeline`}
+            </button>
           </div>
         </div>
+        {bulk.data && (
+          <p className="text-[13px] text-muted mb-3">{bulk.data.added} agregados · {bulk.data.skipped} ya estaban</p>
+        )}
         {leads.data && (
           <LeadsTable items={leads.data.items} pipelineByLead={pipelineByLead} onAdd={(id) => add.mutate(id)} />
         )}
