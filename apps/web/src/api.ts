@@ -58,6 +58,8 @@ export const getAccounts = () => req<Account[]>('/accounts');
 
 export const getPipeline = () => req<PipelineCard[]>('/pipeline');
 export const addToPipeline = (leadId: string) => req<{ id: string }>('/pipeline', { method: 'POST', body: JSON.stringify({ leadId }) });
+export const bulkAddToPipeline = (qs: string) =>
+  req<{ matched: number; added: number; skipped: number }>(`/pipeline/bulk?${qs}`, { method: 'POST' });
 export const updatePipeline = (id: string, body: { stage?: string; ownerId?: string | null }) => req<PipelineLeadRow>(`/pipeline/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
 export const removeFromPipeline = (id: string) => req<{ id: string }>(`/pipeline/${id}`, { method: 'DELETE' });
 export const getPipelineDetail = (id: string) => req<PipelineDetail>(`/pipeline/${id}`);

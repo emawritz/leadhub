@@ -4,7 +4,7 @@ import type { LeadFilters } from '@leadhub/core';
 import { leads } from '../db/schema.js';
 import { leadScoreSql } from './score.js';
 
-function conditions(f: LeadFilters) {
+export function leadWhere(f: LeadFilters) {
   const c = [];
   if (f.q) c.push(sql`${leads.searchTsv} @@ plainto_tsquery('spanish', ${f.q})`);
   if (f.provincia?.length) c.push(inArray(leads.provincia, f.provincia));
@@ -28,7 +28,7 @@ const SORTS = {
 };
 
 export function buildLeadsQuery(db: NodePgDatabase, f: LeadFilters) {
-  const where = conditions(f);
+  const where = leadWhere(f);
   const offsetValue = (f.page - 1) * f.pageSize;
   // Drizzle omite la cláusula OFFSET cuando el valor es 0 (chequeo truthy interno).
   // Se envuelve en sql`` para forzar que la cláusula se emita siempre.
