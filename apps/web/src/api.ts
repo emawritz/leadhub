@@ -38,6 +38,9 @@ export interface PipelineCard {
   leadId: string; nombre: string; categoria: string; localidad: string; telefono: string; email: string;
   pendientes: number;
 }
+export interface PipelineLeadRow {
+  id: string; leadId: string; ownerId: string | null; stage: string; createdAt: string; updatedAt: string;
+}
 export interface Activity { id: string; tipo: string; cuerpo: string; createdAt: string; }
 export interface Task { id: string; titulo: string; vence: string | null; hecha: boolean; completedAt: string | null; }
 export interface PipelineDetail { pipeline: { id: string; stage: string; ownerId: string | null }; lead: Lead; activities: Activity[]; tasks: Task[]; }
@@ -45,7 +48,7 @@ export interface PendingTask { id: string; titulo: string; vence: string | null;
 
 export const getPipeline = () => req<PipelineCard[]>('/pipeline');
 export const addToPipeline = (leadId: string) => req<{ id: string }>('/pipeline', { method: 'POST', body: JSON.stringify({ leadId }) });
-export const updatePipeline = (id: string, body: { stage?: string; ownerId?: string | null }) => req<PipelineCard>(`/pipeline/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
+export const updatePipeline = (id: string, body: { stage?: string; ownerId?: string | null }) => req<PipelineLeadRow>(`/pipeline/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
 export const removeFromPipeline = (id: string) => req<{ id: string }>(`/pipeline/${id}`, { method: 'DELETE' });
 export const getPipelineDetail = (id: string) => req<PipelineDetail>(`/pipeline/${id}`);
 export const addActivity = (id: string, body: { tipo: string; cuerpo: string }) => req<Activity>(`/pipeline/${id}/activities`, { method: 'POST', body: JSON.stringify(body) });

@@ -1,8 +1,9 @@
+import { CLOSED_STAGES, stageLabel } from '@leadhub/core/stages';
 import type { LeadRow } from '../api.js';
 
-type Props = { items: LeadRow[]; pipelineLeadIds: Set<string>; onAdd: (leadId: string) => void };
+type Props = { items: LeadRow[]; pipelineByLead: Map<string, string>; onAdd: (leadId: string) => void };
 
-export default function LeadsTable({ items, pipelineLeadIds, onAdd }: Props) {
+export default function LeadsTable({ items, pipelineByLead, onAdd }: Props) {
   return (
     <div className="overflow-x-auto border rounded">
       <table className="w-full text-sm text-left">
@@ -21,7 +22,7 @@ export default function LeadsTable({ items, pipelineLeadIds, onAdd }: Props) {
         </thead>
         <tbody>
           {items.map((lead, i) => (
-            <tr key={`${lead.razonSocial}-${i}`} className="border-t">
+            <tr key={lead.id} className="border-t">
               <td className="p-2">{lead.razonSocial || lead.nombreFantasia}</td>
               <td className="p-2">{lead.categoria}</td>
               <td className="p-2">
@@ -53,9 +54,12 @@ export default function LeadsTable({ items, pipelineLeadIds, onAdd }: Props) {
                 </div>
               </td>
               <td className="p-2">
-                {pipelineLeadIds.has(lead.id)
-                  ? <span className="text-green-600 text-sm">✓ en pipeline</span>
-                  : <button onClick={() => onAdd(lead.id)} className="text-sm underline">→ Pipeline</button>}
+                {(() => {
+                  const stage = pipelineByLead.get(lead.id);
+                  if (stage === undefined) return <button onClick={() => onAdd(lead.id)} className="text-sm underline">→ Pipeline</button>;
+                  if ((CLOSED_STAGES as readonly string[]).includes(stage)) return <span className="text-gray-500 text-sm">✓ {stageLabel(stage)}</span>;
+                  return <span className="text-green-600 text-sm">✓ en pipeline</span>;
+                })()}
               </td>
             </tr>
           ))}

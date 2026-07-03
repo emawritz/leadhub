@@ -12,7 +12,7 @@ export default function Explorer() {
   const leads = useQuery({ queryKey: ['leads', qs], queryFn: () => getLeads(qs) });
   const pipeline = useQuery({ queryKey: ['pipeline'], queryFn: getPipeline });
   const add = useMutation({ mutationFn: addToPipeline, onSuccess: () => qc.invalidateQueries({ queryKey: ['pipeline'] }) });
-  const ids = new Set((pipeline.data ?? []).map((p) => p.leadId));
+  const pipelineByLead = new Map((pipeline.data ?? []).map((p) => [p.leadId, p.stage] as const));
 
   return (
     <div className="flex gap-6 p-6">
@@ -27,7 +27,7 @@ export default function Explorer() {
           </button>
         </div>
         {leads.data && (
-          <LeadsTable items={leads.data.items} pipelineLeadIds={ids} onAdd={(id) => add.mutate(id)} />
+          <LeadsTable items={leads.data.items} pipelineByLead={pipelineByLead} onAdd={(id) => add.mutate(id)} />
         )}
       </main>
     </div>
