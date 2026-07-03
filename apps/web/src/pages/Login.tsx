@@ -13,12 +13,14 @@ export default function Login() {
     catch (e) { setErr((e as Error).message); }
   }
   return (
-    <form onSubmit={submit} className="max-w-sm mx-auto mt-24 space-y-3 p-6">
-      <h1 className="text-2xl font-bold">LeadHub</h1>
-      <input className="border p-2 w-full" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <input className="border p-2 w-full" type="password" placeholder="Contraseña" value={pw} onChange={(e) => setPw(e.target.value)} />
-      {err && <p className="text-red-600 text-sm">{err}</p>}
-      <button className="bg-black text-white px-4 py-2 rounded w-full">Entrar</button>
-    </form>
+    <div className="min-h-screen flex items-center justify-center bg-canvas px-4">
+      <form onSubmit={submit} className="w-full max-w-sm card p-8 space-y-4">
+        <h1 className="text-3xl font-semibold text-ink tracking-tight">LeadHub</h1>
+        <input className="input w-full" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        <input className="input w-full" type="password" placeholder="Contraseña" value={pw} onChange={(e) => setPw(e.target.value)} />
+        {err && <p className="text-[13px]" style={{ color: '#b23b3b' }}>{err}</p>}
+        <button className="btn w-full">Entrar</button>
+      </form>
+    </div>
   );
 }
