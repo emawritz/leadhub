@@ -191,7 +191,7 @@ El pipeline cuenta con 6 etapas inmutables:
 | **Ganado** | Venta cerrada | Cerrado |
 | **Perdido** | Lead rechazado o no viable | Cerrado |
 
-Las últimas dos etapas (Ganado, Perdido) cierran el lead: ya no aparece en las vistas de exploración, solo en el historial del pipeline.
+Las últimas dos etapas (Ganado, Perdido) cierran el lead. Los leads siguen visibles en **Explorar**: los que están en una etapa abierta del pipeline se marcan como **✓ en pipeline**, y los que llegaron a una etapa cerrada se marcan como **✓ Ganado** / **✓ Perdido**. Un lead cerrado no se puede volver a agregar al pipeline, pero permanece en el catálogo.
 
 ### API endpoints
 
