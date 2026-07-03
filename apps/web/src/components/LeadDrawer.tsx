@@ -26,8 +26,8 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   const outreachMut = useMutation({ mutationFn: (v: { tipo: string; cuerpo: string }) => addActivity(pipelineId, v), onSuccess: inval });
 
   const d = detail.data;
-  const selectCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-accent/30';
-  const composerCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent/30';
+  const selectCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-accent';
+  const composerCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent';
   const addBtnCls = 'bg-accent text-on-accent px-2.5 rounded-md text-sm transition-transform active:scale-95 disabled:opacity-40 disabled:active:scale-100';
   return (
     <div className="fixed inset-0 bg-black/30 flex justify-end z-50" onClick={onClose}>

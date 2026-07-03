@@ -59,7 +59,7 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
             </span>
           )}
           {card.pendientes > 0 && (
-            <span className="text-[11px] px-1.5 py-0.5 rounded-sm bg-accent/10 text-accent font-medium">{card.pendientes}</span>
+            <span className="text-[11px] px-1.5 py-0.5 rounded-sm bg-accent text-on-accent font-medium">{card.pendientes}</span>
           )}
         </div>
       </div>
