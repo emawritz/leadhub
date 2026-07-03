@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { and, desc, eq, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { pipelineCreateSchema, pipelineUpdateSchema, stageLabel } from '@leadhub/core';
 import { pipelineLeads, activities, tasks, leads, accounts } from '../db/schema.js';

@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { desc, eq } from 'drizzle-orm';
+import { asc, eq } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { activityCreateSchema, taskCreateSchema, taskUpdateSchema } from '@leadhub/core';
 import { activities, tasks, pipelineLeads, leads } from '../db/schema.js';
@@ -50,7 +50,7 @@ export function activityTaskRoutes(app: FastifyInstance, db: NodePgDatabase) {
       .innerJoin(pipelineLeads, eq(pipelineLeads.id, tasks.pipelineLeadId))
       .innerJoin(leads, eq(leads.id, pipelineLeads.leadId))
       .where(eq(tasks.hecha, false))
-      .orderBy(desc(tasks.vence));
+      .orderBy(asc(tasks.vence));
     return { ok: true, data: rows };
   });
 }
