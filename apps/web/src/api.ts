@@ -5,9 +5,15 @@ export const setToken = (t: string | null) => { token = t; t ? localStorage.setI
 export const getToken = () => token;
 
 async function req<T>(path: string, init: RequestInit = {}): Promise<T> {
+  // Solo mandamos content-type JSON cuando hay body: Fastify rechaza un POST/DELETE con
+  // content-type JSON y body vacío (FST_ERR_CTP_EMPTY_JSON_BODY).
   const res = await fetch(`/api${path}`, {
     ...init,
-    headers: { 'content-type': 'application/json', ...(token ? { authorization: `Bearer ${token}` } : {}), ...init.headers },
+    headers: {
+      ...(init.body !== undefined ? { 'content-type': 'application/json' } : {}),
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+      ...init.headers,
+    },
   });
   const json = await res.json();
   if (!res.ok || !json.ok) throw new Error(json.error ?? 'Error');
@@ -59,9 +65,8 @@ export const getAccounts = () => req<Account[]>('/accounts');
 export const getPipeline = () => req<PipelineCard[]>('/pipeline');
 export const addToPipeline = (leadId: string) => req<{ id: string }>('/pipeline', { method: 'POST', body: JSON.stringify({ leadId }) });
 export const bulkAddToPipeline = (qs: string) =>
-  // Los filtros van en la query; el body va vacío ('{}') porque req() setea content-type JSON
-  // y Fastify rechaza un POST con content-type JSON y body vacío (FST_ERR_CTP_EMPTY_JSON_BODY).
-  req<{ matched: number; added: number; skipped: number }>(`/pipeline/bulk?${qs}`, { method: 'POST', body: '{}' });
+  // Los filtros van en la query; sin body (req() ya omite content-type cuando no hay body).
+  req<{ matched: number; added: number; skipped: number }>(`/pipeline/bulk?${qs}`, { method: 'POST' });
 export const updatePipeline = (id: string, body: { stage?: string; ownerId?: string | null }) => req<PipelineLeadRow>(`/pipeline/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
 export const removeFromPipeline = (id: string) => req<{ id: string }>(`/pipeline/${id}`, { method: 'DELETE' });
 export const getPipelineDetail = (id: string) => req<PipelineDetail>(`/pipeline/${id}`);
