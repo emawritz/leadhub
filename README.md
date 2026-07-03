@@ -161,3 +161,80 @@ Playwright levanta la API compilada (`apps/api/dist/server.js`) en el puerto 450
 5173 (ver `apps/web/playwright.config.ts`), y corre el flujo login → filtrar → exportar contra Postgres real.
 Requiere haber corrido `pnpm --filter @leadhub/api build` antes y tener Postgres levantado con datos (o al
 menos la cuenta sembrada en el paso 6).
+
+## Buscar desde la UI (scrape on-demand)
+
+La página `/buscar` en el web permite lanzar un scraping de Google Maps bajo demanda. El flujo es:
+
+1. **Formulario de búsqueda** → ingresar query (ej. "farmacias") y ubicación (ej. "Lomas de Zamora, Buenos Aires, Argentina")
+2. **Envío a la API** → `POST /scrape` lanza un job de scraping asincrónico
+3. **Ejecución en el back-office** → el scraper corre **headless** vía el API worker (concurrencia 1; los jobs se ejecutan uno a la vez)
+4. **Progreso en vivo** → la tabla en el UI actualiza en tiempo real (contador `done/total` subiendo)
+5. **Finalización** → cuando el job termina, los leads se ingresan automáticamente en la BD y aparecen en Explorar
+
+### Prerrequisitos
+
+Para que `/buscar` funcione, se deben cumplir estos pasos previos:
+
+1. **Compilar el scraper:**
+   ```bash
+   pnpm --filter @leadhub/scraper build
+   ```
+
+2. **Levantar Postgres** (ver paso 2 arriba):
+   ```bash
+   docker compose up -d db
+   ```
+
+3. **API desde la raíz del repo** con cwd en la raíz (el worker necesita resolver `output/jobs/` y el CLI del scraper):
+   ```bash
+   # Si puerto 3001 está disponible:
+   pnpm --filter @leadhub/api dev
+
+   # O en otro puerto (ej. 4501):
+   PORT=4501 pnpm --filter @leadhub/api dev
+   ```
+
+4. **Web con proxy apuntando a la API:**
+   ```bash
+   # Si API en puerto 3001 (default):
+   pnpm --filter @leadhub/web dev
+
+   # Si API en otro puerto (ej. 4501):
+   VITE_API_PROXY_TARGET=http://localhost:4501 pnpm --filter @leadhub/web dev
+   ```
+
+### Autenticación de Google
+
+El scraper corre **headless** (sin interfaz gráfica) usando un perfil de navegador persistente (`.cache/browser-profile`).
+
+- **Primera vez / nuevo perfil:** Si Google muestra un CAPTCHA o solicita login, el job termina en estado `error` con una indicación. Para reauthenticarse:
+  ```bash
+  pnpm --filter @leadhub/scraper dev -- search "farmacia" --location "CABA, Argentina" --headed
+  ```
+  El flag `--headed` abre el navegador; completar el login/CAPTCHA en Google y el script termina; en las próximas búsquedas desde `/buscar` ya tendrá sesión válida.
+
+### Concurrencia y salida
+
+- **Concurrencia:** Los jobs se ejecutan **uno a la vez** (workers concurrencia = 1). Si hay múltiples búsquedas en cola, se procesan secuencialmente.
+- **Output:** El JSON de resultados de cada scrape se guarda en `output/jobs/<jobId>.json`.
+- **Leads:** Finalizando el scrape, los leads se ingresan (upsert idempotente) en la tabla `leads`, ordenados por `leadKey` (dedup).
+- **Estado en BD:** La tabla `scrape_jobs` registra el estado del job: `queued` → `running` → `done` o `error`.
+
+### Flujo de ejemplo
+
+```bash
+# Terminal 1: API en puerto 4501
+PORT=4501 pnpm --filter @leadhub/api dev
+
+# Terminal 2: Web con proxy
+VITE_API_PROXY_TARGET=http://localhost:4501 pnpm --filter @leadhub/web dev
+
+# Terminal 3: Abrir navegador en http://localhost:5173
+# 1. Login con demo@leadhub.com / demo1234
+# 2. Ir a /buscar
+# 3. Ingresar query="farmacias", location="Lomas de Zamora, Buenos Aires, Argentina", max=10
+# 4. Hacer clic en "Buscar"
+# 5. Ver el progreso en vivo y "N encontrados · X nuevos" al terminar
+# 6. Ir a Explorar y filtrar por categoría/localidad para confirmar los leads
+```
