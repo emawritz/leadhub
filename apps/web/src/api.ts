@@ -59,7 +59,9 @@ export const getAccounts = () => req<Account[]>('/accounts');
 export const getPipeline = () => req<PipelineCard[]>('/pipeline');
 export const addToPipeline = (leadId: string) => req<{ id: string }>('/pipeline', { method: 'POST', body: JSON.stringify({ leadId }) });
 export const bulkAddToPipeline = (qs: string) =>
-  req<{ matched: number; added: number; skipped: number }>(`/pipeline/bulk?${qs}`, { method: 'POST' });
+  // Los filtros van en la query; el body va vacío ('{}') porque req() setea content-type JSON
+  // y Fastify rechaza un POST con content-type JSON y body vacío (FST_ERR_CTP_EMPTY_JSON_BODY).
+  req<{ matched: number; added: number; skipped: number }>(`/pipeline/bulk?${qs}`, { method: 'POST', body: '{}' });
 export const updatePipeline = (id: string, body: { stage?: string; ownerId?: string | null }) => req<PipelineLeadRow>(`/pipeline/${id}`, { method: 'PATCH', body: JSON.stringify(body) });
 export const removeFromPipeline = (id: string) => req<{ id: string }>(`/pipeline/${id}`, { method: 'DELETE' });
 export const getPipelineDetail = (id: string) => req<PipelineDetail>(`/pipeline/${id}`);
