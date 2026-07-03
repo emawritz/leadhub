@@ -22,6 +22,7 @@ export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
         telefono: leads.telefono,
         email: leads.email,
         pendientes: sql<number>`(select count(*)::int from ${tasks} t where t.pipeline_lead_id = ${pipelineLeads.id} and t.hecha = false)`,
+        proximoVence: sql<string | null>`(select min(t.vence) from ${tasks} t where t.pipeline_lead_id = ${pipelineLeads.id} and t.hecha = false)`,
       })
       .from(pipelineLeads)
       .innerJoin(leads, eq(leads.id, pipelineLeads.leadId))
