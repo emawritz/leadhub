@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "type": "module",
   "bin": { "ingest": "dist/cli.js" },
+  "exports": { ".": "./dist/index.js" },
+  "types": "./dist/index.d.ts",
   "scripts": { "build": "tsc", "dev": "tsx src/cli.ts", "test": "vitest run" },
   "dependencies": {
     "@leadhub/core": "workspace:*", "drizzle-orm": "^0.36.0", "pg": "^8.13.0", "dotenv": "^16.4.0"

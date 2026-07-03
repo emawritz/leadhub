@@ -19,6 +19,9 @@ importers:
       '@leadhub/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@leadhub/ingest':
+        specifier: workspace:*
+        version: link:../ingest
       argon2:
         specifier: ^0.41.0
         version: 0.41.1
