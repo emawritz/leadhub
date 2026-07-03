@@ -6,7 +6,7 @@ import { hashPassword } from '../../src/auth/password.js';
 export const testDbCtx = makeDb(config.databaseUrlTest);
 
 export async function resetDb() {
-  await testDbCtx.pool.query('TRUNCATE leads, accounts, export_logs RESTART IDENTITY CASCADE');
+  await testDbCtx.pool.query('TRUNCATE leads, accounts, export_logs, scrape_jobs RESTART IDENTITY CASCADE');
 }
 
 export async function seedLead(over: Partial<typeof leads.$inferInsert> = {}) {
