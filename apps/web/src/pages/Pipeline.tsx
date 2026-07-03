@@ -16,9 +16,9 @@ export default function Pipeline() {
     setParams(p);
   };
   return (
-    <div>
+    <div className="bg-canvas">
       <div className="flex items-center justify-between px-4 pt-4">
-        <h1 className="text-xl font-bold text-slate-800">Pipeline</h1>
+        <h1 className="text-xl font-semibold text-ink tracking-tight">Pipeline</h1>
       </div>
       <BoardFilters value={filter} onChange={setFilter} />
       <KanbanBoard onOpen={setSelected} filter={filter} />
