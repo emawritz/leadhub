@@ -1,20 +1,33 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { getFacets, getLeads, downloadCsv, getPipeline, addToPipeline, bulkAddToPipeline } from '../api.js';
 import { useFilters, filtersToQuery } from '../useFilters.js';
+import { useToast } from '../toast.js';
 import Filters from '../components/Filters.js';
 import LeadsTable from '../components/LeadsTable.js';
+import Loading from '../components/Loading.js';
+import EmptyState from '../components/EmptyState.js';
 
 export default function Explorer() {
   const [filters, setFilters] = useFilters();
   const qs = filtersToQuery(filters);
   const qc = useQueryClient();
+  const toast = useToast();
   const facets = useQuery({ queryKey: ['facets'], queryFn: getFacets });
   const leads = useQuery({ queryKey: ['leads', qs], queryFn: () => getLeads(qs) });
   const pipeline = useQuery({ queryKey: ['pipeline'], queryFn: getPipeline });
-  const add = useMutation({ mutationFn: addToPipeline, onSuccess: () => qc.invalidateQueries({ queryKey: ['pipeline'] }) });
+  const add = useMutation({
+    mutationFn: addToPipeline,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['pipeline'] }); toast.success('Agregado al pipeline'); },
+    onError: (e) => toast.error((e as Error).message),
+  });
   const bulk = useMutation({
     mutationFn: () => bulkAddToPipeline(qs),
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); },
+    onSuccess: (data) => {
+      qc.invalidateQueries({ queryKey: ['pipeline'] });
+      qc.invalidateQueries({ queryKey: ['pipeline-stats'] });
+      toast.success(`${data.added} agregados · ${data.skipped} ya estaban`);
+    },
+    onError: (e) => toast.error((e as Error).message),
   });
   const pipelineByLead = new Map((pipeline.data ?? []).map((p) => [p.leadId, p.stage] as const));
 
@@ -49,10 +62,15 @@ export default function Explorer() {
             </button>
           </div>
         </div>
-        {bulk.data && (
-          <p className="text-[13px] text-muted mb-3">{bulk.data.added} agregados · {bulk.data.skipped} ya estaban</p>
-        )}
-        {leads.data && (
+        {leads.isError ? (
+          <EmptyState icon="⚠️" title="No se pudieron cargar los leads" hint="Reintentá en un momento" />
+        ) : leads.isLoading ? (
+          <Loading />
+        ) : !leads.data ? (
+          <Loading />
+        ) : leads.data.total === 0 ? (
+          <EmptyState icon="🔍" title="Sin resultados" hint="Probá con otros filtros" />
+        ) : (
           <LeadsTable items={leads.data.items} pipelineByLead={pipelineByLead} onAdd={(id) => add.mutate(id)} />
         )}
       </main>

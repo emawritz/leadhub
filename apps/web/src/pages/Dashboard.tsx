@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { STAGES, stageColor } from '@leadhub/core/stages';
 import { getPipelineStats } from '../api.js';
+import Loading from '../components/Loading.js';
+import EmptyState from '../components/EmptyState.js';
 
 function Metric({ label, value, accent }: { label: string; value: string; accent?: string }) {
   return (
@@ -18,7 +20,11 @@ export default function Dashboard() {
   return (
     <div className="p-6 max-w-3xl">
       <h1 className="text-xl font-semibold text-ink tracking-tight mb-4">Dashboard</h1>
-      {!s ? <p className="text-faint">Cargando…</p> : (
+      {stats.isError ? (
+        <EmptyState icon="⚠️" title="No se pudo cargar el dashboard" />
+      ) : !s ? (
+        <Loading />
+      ) : (
         <>
           <div className="flex gap-3 mb-6">
             <Metric label="En pipeline" value={String(s.total)} />
