@@ -12,6 +12,7 @@ export default function Nav() {
       <NavLink to="/buscar" className={cls}>Buscar</NavLink>
       <NavLink to="/pipeline" className={cls}>Pipeline</NavLink>
       <NavLink to="/tareas" className={cls}>Tareas</NavLink>
+      <NavLink to="/dashboard" className={cls}>Dashboard</NavLink>
       <button onClick={signOut} className="ml-auto text-sm text-gray-600 hover:underline">Salir</button>
     </nav>
   );

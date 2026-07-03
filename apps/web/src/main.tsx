@@ -8,6 +8,7 @@ import Explorer from './pages/Explorer.js';
 import Buscar from './pages/Buscar.js';
 import Pipeline from './pages/Pipeline.js';
 import Tareas from './pages/Tareas.js';
+import Dashboard from './pages/Dashboard.js';
 import Nav from './components/Nav.js';
 import './index.css';
 
@@ -56,6 +57,15 @@ function App() {
           <RequireAuth>
             <Nav />
             <Tareas />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <RequireAuth>
+            <Nav />
+            <Dashboard />
           </RequireAuth>
         }
       />
