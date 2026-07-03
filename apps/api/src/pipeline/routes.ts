@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
-import { desc, eq, sql } from 'drizzle-orm';
+import { and, desc, eq, lt, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { pipelineCreateSchema, pipelineUpdateSchema, stageLabel } from '@leadhub/core';
+import { pipelineCreateSchema, pipelineUpdateSchema, stageLabel, STAGE_IDS } from '@leadhub/core';
 import { pipelineLeads, activities, tasks, leads, accounts } from '../db/schema.js';
 import { requireAuth } from '../auth/require-auth.js';
 import { isUuid } from './params.js';
@@ -71,6 +71,26 @@ export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
     const [row] = await db.delete(pipelineLeads).where(eq(pipelineLeads.id, id)).returning({ id: pipelineLeads.id });
     if (!row) return reply.code(404).send({ ok: false, error: 'No encontrado' });
     return { ok: true, data: { id } };
+  });
+
+  app.get('/pipeline/stats', { preHandler: [requireAuth] }, async () => {
+    const porEtapaRows = await db
+      .select({ stage: pipelineLeads.stage, count: sql<number>`count(*)::int` })
+      .from(pipelineLeads)
+      .groupBy(pipelineLeads.stage);
+    const porEtapa: Record<string, number> = {};
+    for (const id of STAGE_IDS) porEtapa[id] = 0;
+    for (const r of porEtapaRows) porEtapa[r.stage] = r.count;
+    const total = Object.values(porEtapa).reduce((a, b) => a + b, 0);
+    const ganado = porEtapa['ganado'] ?? 0;
+    const perdido = porEtapa['perdido'] ?? 0;
+    const cerrados = ganado + perdido;
+    const conversion = cerrados > 0 ? ganado / cerrados : 0;
+    const [venc] = await db
+      .select({ n: sql<number>`count(*)::int` })
+      .from(tasks)
+      .where(and(eq(tasks.hecha, false), lt(tasks.vence, new Date())));
+    return { ok: true, data: { porEtapa, total, ganado, perdido, conversion, tareasVencidas: venc?.n ?? 0 } };
   });
 
   app.get('/pipeline/:id', { preHandler: [requireAuth] }, async (req, reply) => {

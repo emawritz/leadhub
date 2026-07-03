@@ -47,6 +47,11 @@ export interface Task { id: string; titulo: string; vence: string | null; hecha:
 export interface PipelineDetail { pipeline: { id: string; stage: string; ownerId: string | null }; lead: Lead; activities: Activity[]; tasks: Task[]; }
 export interface PendingTask { id: string; titulo: string; vence: string | null; hecha: boolean; pipelineLeadId: string; leadNombre: string; }
 
+export interface PipelineStats {
+  porEtapa: Record<string, number>; total: number; ganado: number; perdido: number; conversion: number; tareasVencidas: number;
+}
+export const getPipelineStats = () => req<PipelineStats>('/pipeline/stats');
+
 export interface Account { id: string; email: string; nombre: string | null; }
 export const getAccounts = () => req<Account[]>('/accounts');
 
