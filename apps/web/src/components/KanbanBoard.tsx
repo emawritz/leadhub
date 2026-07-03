@@ -5,6 +5,7 @@ import type { BoardFilter } from './BoardFilters.js';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
 import { STAGES, CLOSED_STAGES, stageColor } from '@leadhub/core/stages';
 import { getPipeline, updatePipeline, type PipelineCard } from '../api.js';
+import { useToast } from '../toast.js';
 import KanbanCard from './KanbanCard.js';
 import Loading from './Loading.js';
 import EmptyState from './EmptyState.js';
@@ -49,6 +50,7 @@ function Column({ stageId, label, cards, onOpen }: { stageId: string; label: str
 
 export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) => void; filter?: BoardFilter }) {
   const qc = useQueryClient();
+  const toast = useToast();
   const reduced = useReducedMotion();
   const [activeId, setActiveId] = useState<string | null>(null);
   const pipeline = useQuery({ queryKey: ['pipeline'], queryFn: getPipeline });
@@ -60,7 +62,7 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
       qc.setQueryData<PipelineCard[]>(['pipeline'], (old) => (old ?? []).map((c) => (c.id === id ? { ...c, stage } : c)));
       return { prev };
     },
-    onError: (_e, _v, ctx) => { if (ctx?.prev) qc.setQueryData(['pipeline'], ctx.prev); },
+    onError: (_e, _v, ctx) => { if (ctx?.prev) qc.setQueryData(['pipeline'], ctx.prev); toast.error('No se pudo mover la tarjeta'); },
     onSettled: () => { qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); },
   });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));

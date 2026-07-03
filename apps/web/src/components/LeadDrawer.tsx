@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
 import { STAGES, USER_ACTIVITY_TYPES, ACTIVITY_META, stageColor } from '@leadhub/core/stages';
 import { getPipelineDetail, addActivity, addTask, toggleTask, updatePipeline, removeFromPipeline, getAccounts } from '../api.js';
+import { useToast } from '../toast.js';
 import Loading from './Loading.js';
 
 function soloDigitos(tel: string | null | undefined): string { return (tel ?? '').replace(/\D/g, ''); }
@@ -11,20 +12,45 @@ const NEUTRAL = { icon: '•', color: '#94a3b8' };
 
 export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string; onClose: () => void }) {
   const qc = useQueryClient();
+  const toast = useToast();
   const detail = useQuery({ queryKey: ['pipeline', pipelineId], queryFn: () => getPipelineDetail(pipelineId) });
   const inval = () => { qc.invalidateQueries({ queryKey: ['pipeline', pipelineId] }); qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); };
   const [tipo, setTipo] = useState('nota');
   const [cuerpo, setCuerpo] = useState('');
   const [titulo, setTitulo] = useState('');
   const [vence, setVence] = useState('');
-  const actMut = useMutation({ mutationFn: () => addActivity(pipelineId, { tipo, cuerpo }), onSuccess: () => { setCuerpo(''); inval(); } });
-  const taskMut = useMutation({ mutationFn: () => addTask(pipelineId, { titulo, vence: vence ? new Date(vence).toISOString() : undefined }), onSuccess: () => { setTitulo(''); setVence(''); inval(); } });
+  const actMut = useMutation({
+    mutationFn: () => addActivity(pipelineId, { tipo, cuerpo }),
+    onSuccess: () => { setCuerpo(''); inval(); toast.success('Actividad registrada'); },
+    onError: (e) => toast.error((e as Error).message),
+  });
+  const taskMut = useMutation({
+    mutationFn: () => addTask(pipelineId, { titulo, vence: vence ? new Date(vence).toISOString() : undefined }),
+    onSuccess: () => { setTitulo(''); setVence(''); inval(); toast.success('Tarea agregada'); },
+    onError: (e) => toast.error((e as Error).message),
+  });
   const toggleMut = useMutation({ mutationFn: (t: { id: string; hecha: boolean }) => toggleTask(t.id, t.hecha), onSuccess: inval });
-  const stageMut = useMutation({ mutationFn: (stage: string) => updatePipeline(pipelineId, { stage }), onSuccess: inval });
-  const delMut = useMutation({ mutationFn: () => removeFromPipeline(pipelineId), onSuccess: () => { onClose(); qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); } });
+  const stageMut = useMutation({
+    mutationFn: (stage: string) => updatePipeline(pipelineId, { stage }),
+    onSuccess: () => { inval(); toast.success('Etapa actualizada'); },
+    onError: (e) => toast.error((e as Error).message),
+  });
+  const delMut = useMutation({
+    mutationFn: () => removeFromPipeline(pipelineId),
+    onSuccess: () => { onClose(); qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); toast.success('Sacado del pipeline'); },
+    onError: (e) => toast.error((e as Error).message),
+  });
   const accounts = useQuery({ queryKey: ['accounts'], queryFn: getAccounts });
-  const ownerMut = useMutation({ mutationFn: (ownerId: string | null) => updatePipeline(pipelineId, { ownerId }), onSuccess: inval });
-  const outreachMut = useMutation({ mutationFn: (v: { tipo: string; cuerpo: string }) => addActivity(pipelineId, v), onSuccess: inval });
+  const ownerMut = useMutation({
+    mutationFn: (ownerId: string | null) => updatePipeline(pipelineId, { ownerId }),
+    onSuccess: () => { inval(); toast.success('Dueño actualizado'); },
+    onError: (e) => toast.error((e as Error).message),
+  });
+  const outreachMut = useMutation({
+    mutationFn: (v: { tipo: string; cuerpo: string }) => addActivity(pipelineId, v),
+    onSuccess: () => { inval(); toast.success('Actividad registrada'); },
+    onError: (e) => toast.error((e as Error).message),
+  });
 
   const d = detail.data;
   const selectCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-accent';
