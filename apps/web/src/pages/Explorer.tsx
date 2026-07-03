@@ -3,6 +3,8 @@ import { getFacets, getLeads, downloadCsv, getPipeline, addToPipeline, bulkAddTo
 import { useFilters, filtersToQuery } from '../useFilters.js';
 import Filters from '../components/Filters.js';
 import LeadsTable from '../components/LeadsTable.js';
+import Loading from '../components/Loading.js';
+import EmptyState from '../components/EmptyState.js';
 
 export default function Explorer() {
   const [filters, setFilters] = useFilters();
@@ -52,7 +54,11 @@ export default function Explorer() {
         {bulk.data && (
           <p className="text-[13px] text-muted mb-3">{bulk.data.added} agregados · {bulk.data.skipped} ya estaban</p>
         )}
-        {leads.data && (
+        {leads.isLoading || !leads.data ? (
+          <Loading />
+        ) : leads.data.total === 0 ? (
+          <EmptyState icon="🔍" title="Sin resultados" hint="Probá con otros filtros" />
+        ) : (
           <LeadsTable items={leads.data.items} pipelineByLead={pipelineByLead} onAdd={(id) => add.mutate(id)} />
         )}
       </main>

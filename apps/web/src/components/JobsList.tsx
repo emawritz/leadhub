@@ -3,6 +3,7 @@ import type { ScrapeJob } from '../api.js';
 import { jobLabel } from '../jobLabel.js';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
 import { stageColor } from '@leadhub/core/stages';
+import EmptyState from './EmptyState.js';
 
 const STATUS_COLOR: Record<ScrapeJob['status'], string> = {
   queued: '#86868b',
@@ -12,6 +13,9 @@ const STATUS_COLOR: Record<ScrapeJob['status'], string> = {
 };
 
 export default function JobsList({ jobs }: { jobs: ScrapeJob[] }) {
+  if (jobs.length === 0) {
+    return <EmptyState icon="🔎" title="Sin búsquedas todavía" hint="Lanzá una búsqueda arriba" />;
+  }
   return (
     <ul className="space-y-3 mt-6 max-w-xl">
       {jobs.map((j) => (

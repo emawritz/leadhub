@@ -6,6 +6,8 @@ import type { BoardFilter } from './BoardFilters.js';
 import { STAGES, CLOSED_STAGES, stageColor } from '@leadhub/core/stages';
 import { getPipeline, updatePipeline, type PipelineCard } from '../api.js';
 import KanbanCard from './KanbanCard.js';
+import Loading from './Loading.js';
+import EmptyState from './EmptyState.js';
 
 function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(
@@ -81,6 +83,9 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
     const card = cards.find((c) => c.id === id);
     if (card && card.stage !== stage) move.mutate({ id, stage });
   }
+
+  if (pipeline.isLoading) return <Loading />;
+  if (all.length === 0) return <EmptyState icon="📋" title="Pipeline vacío" hint="Agregá leads desde Explorar" />;
 
   return (
     <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
