@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { DndContext, DragOverlay, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { BoardFilter } from './BoardFilters.js';
@@ -8,7 +8,17 @@ import { getPipeline, updatePipeline, type PipelineCard } from '../api.js';
 import KanbanCard from './KanbanCard.js';
 
 function useReducedMotion(): boolean {
-  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const [reduced, setReduced] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const onChange = () => setReduced(mq.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
+  }, []);
+  return reduced;
 }
 
 function Column({ stageId, label, cards, onOpen }: { stageId: string; label: string; cards: PipelineCard[]; onOpen: (id: string) => void }) {
@@ -49,7 +59,7 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
       return { prev };
     },
     onError: (_e, _v, ctx) => { if (ctx?.prev) qc.setQueryData(['pipeline'], ctx.prev); },
-    onSettled: () => qc.invalidateQueries({ queryKey: ['pipeline'] }),
+    onSettled: () => { qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); },
   });
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
   const all = pipeline.data ?? [];
