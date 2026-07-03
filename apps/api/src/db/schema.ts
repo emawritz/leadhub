@@ -72,3 +72,32 @@ export const scrapeJobs = pgTable('scrape_jobs', {
   startedAt: timestamp('started_at', { withTimezone: true }),
   finishedAt: timestamp('finished_at', { withTimezone: true }),
 });
+
+export const pipelineLeads = pgTable('pipeline_leads', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  leadId: uuid('lead_id').notNull().unique().references(() => leads.id),
+  ownerId: uuid('owner_id').references(() => accounts.id),
+  stage: text('stage').notNull().default('nuevo'),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const activities = pgTable('activities', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  pipelineLeadId: uuid('pipeline_lead_id').notNull().references(() => pipelineLeads.id, { onDelete: 'cascade' }),
+  accountId: uuid('account_id').notNull().references(() => accounts.id),
+  tipo: text('tipo').notNull(),
+  cuerpo: text('cuerpo').notNull().default(''),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const tasks = pgTable('tasks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  pipelineLeadId: uuid('pipeline_lead_id').notNull().references(() => pipelineLeads.id, { onDelete: 'cascade' }),
+  accountId: uuid('account_id').notNull().references(() => accounts.id),
+  titulo: text('titulo').notNull(),
+  vence: timestamp('vence', { withTimezone: true }),
+  hecha: boolean('hecha').notNull().default(false),
+  createdAt: timestamp('created_at', { withTimezone: true }).defaultNow().notNull(),
+  completedAt: timestamp('completed_at', { withTimezone: true }),
+});
