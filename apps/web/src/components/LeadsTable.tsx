@@ -1,8 +1,8 @@
-import type { Lead } from '@leadhub/core';
+import type { LeadRow } from '../api.js';
 
-type Props = { items: Lead[] };
+type Props = { items: LeadRow[]; pipelineLeadIds: Set<string>; onAdd: (leadId: string) => void };
 
-export default function LeadsTable({ items }: Props) {
+export default function LeadsTable({ items, pipelineLeadIds, onAdd }: Props) {
   return (
     <div className="overflow-x-auto border rounded">
       <table className="w-full text-sm text-left">
@@ -16,6 +16,7 @@ export default function LeadsTable({ items }: Props) {
             <th className="p-2">CUIT</th>
             <th className="p-2">Fuente</th>
             <th className="p-2">Redes</th>
+            <th className="p-2">Pipeline</th>
           </tr>
         </thead>
         <tbody>
@@ -50,6 +51,11 @@ export default function LeadsTable({ items }: Props) {
                     </a>
                   )}
                 </div>
+              </td>
+              <td className="p-2">
+                {pipelineLeadIds.has(lead.id)
+                  ? <span className="text-green-600 text-sm">✓ en pipeline</span>
+                  : <button onClick={() => onAdd(lead.id)} className="text-sm underline">→ Pipeline</button>}
               </td>
             </tr>
           ))}

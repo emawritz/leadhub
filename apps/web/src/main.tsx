@@ -6,6 +6,8 @@ import { AuthProvider, useAuth } from './auth.js';
 import Login from './pages/Login.js';
 import Explorer from './pages/Explorer.js';
 import Buscar from './pages/Buscar.js';
+import Pipeline from './pages/Pipeline.js';
+import Tareas from './pages/Tareas.js';
 import Nav from './components/Nav.js';
 import './index.css';
 
@@ -36,6 +38,24 @@ function App() {
           <RequireAuth>
             <Nav />
             <Buscar />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/pipeline"
+        element={
+          <RequireAuth>
+            <Nav />
+            <Pipeline />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/tareas"
+        element={
+          <RequireAuth>
+            <Nav />
+            <Tareas />
           </RequireAuth>
         }
       />

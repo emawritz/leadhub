@@ -162,6 +162,58 @@ Playwright levanta la API compilada (`apps/api/dist/server.js`) en el puerto 450
 Requiere haber corrido `pnpm --filter @leadhub/api build` antes y tener Postgres levantado con datos (o al
 menos la cuenta sembrada en el paso 6).
 
+## CRM / Pipeline
+
+El **Pipeline** es un tablero de outreach Kanban sobre los leads del catálogo. Es compartido por todo el equipo: cada lead en el pipeline tiene un dueño asignado, y entra una sola vez (no se duplica).
+
+### Cómo se usa
+
+1. **Agregar a Pipeline:** En **Explorar**, hacer clic en "→ Pipeline" en un lead para agregarlo a la columna **Nuevo** del pipeline.
+2. **Mover entre etapas:** En el **Pipeline**, arrastrar (drag&drop) la tarjeta del lead entre columnas. El movimiento se registra automáticamente en el timeline de actividades.
+3. **Detalle y actividades:** Hacer clic en la tarjeta para abrir un drawer que muestra:
+   - Timeline de actividades (notas, llamadas, emails, WhatsApp)
+   - Tareas con vencimiento
+   - Selector para cambiar la etapa del lead
+   - Botón para sacar el lead del pipeline
+4. **Gestionar tareas:** La pestaña **Tareas** lista todas las tareas pendientes (resaltadas si están vencidas).
+   - Marcar tarea completada: hacerla desaparecer de la lista.
+
+### Etapas fijas
+
+El pipeline cuenta con 6 etapas inmutables:
+
+| Etapa | Descripción | Estado |
+|-------|-------------|--------|
+| **Nuevo** | Lead recién agregado al pipeline | Abierto |
+| **Contactado** | Se ha establecido contacto inicial | Abierto |
+| **Interesado** | Lead muestra interés | Abierto |
+| **Negociación** | Negociación en curso | Abierto |
+| **Ganado** | Venta cerrada | Cerrado |
+| **Perdido** | Lead rechazado o no viable | Cerrado |
+
+Las últimas dos etapas (Ganado, Perdido) cierran el lead: ya no aparece en las vistas de exploración, solo en el historial del pipeline.
+
+### API endpoints
+
+Nuevos endpoints para pipeline:
+
+- `GET /pipeline` — Obtener board completo (leads agrupados por etapa)
+- `POST /pipeline` — Agregar un lead al pipeline (retorna 409 si ya está)
+- `PATCH /pipeline/:id` — Mover lead a otra etapa (registra actividad automáticamente)
+- `DELETE /pipeline/:id` — Sacar lead del pipeline
+- `GET /pipeline/:id` — Detalle del lead en pipeline
+- `GET /pipeline/:id/activities` — Timeline de actividades del lead
+- `GET /pipeline/:id/tasks` — Tareas del lead
+- `GET /tasks` — Listar tareas pendientes (con vencidas resaltadas)
+- `PATCH /tasks/:id` — Marcar tarea completada
+
+### Organización del equipo
+
+El pipeline facilita la coordinación del equipo:
+- **Lead owner:** Cada lead tiene un dueño asignado (usuario que lo agregó o fue reasignado).
+- **Actividades compartidas:** El timeline de actividades es visible para todo el equipo.
+- **No duplicados:** Un lead entra al pipeline una sola vez; reintentar agregar retorna error 409.
+
 ## Buscar desde la UI (scrape on-demand)
 
 La página `/buscar` en el web permite lanzar un scraping de Google Maps bajo demanda. El flujo es:

@@ -7,6 +7,8 @@ import { leadsRoutes } from './leads/routes.js';
 import { makeScrapeWorker, type RunJob } from './scrape/worker.js';
 import { scrapeRoutes } from './scrape/routes.js';
 import { spawnScraperAndIngest } from './scrape/runner.js';
+import { pipelineRoutes } from './pipeline/routes.js';
+import { activityTaskRoutes } from './pipeline/activity-task-routes.js';
 
 export function buildApp(db: NodePgDatabase, opts: { scrapeRunJob?: RunJob } = {}): FastifyInstance {
   const app = Fastify({ logger: false });
@@ -19,6 +21,8 @@ export function buildApp(db: NodePgDatabase, opts: { scrapeRunJob?: RunJob } = {
     authRoutes(app, db);
     leadsRoutes(app, db);
     scrapeRoutes(app, db, worker);
+    pipelineRoutes(app, db);
+    activityTaskRoutes(app, db);
   });
   return app;
 }

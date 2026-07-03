@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
-import { getFacets, getLeads, downloadCsv } from '../api.js';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { getFacets, getLeads, downloadCsv, getPipeline, addToPipeline } from '../api.js';
 import { useFilters, filtersToQuery } from '../useFilters.js';
 import Filters from '../components/Filters.js';
 import LeadsTable from '../components/LeadsTable.js';
@@ -7,8 +7,12 @@ import LeadsTable from '../components/LeadsTable.js';
 export default function Explorer() {
   const [filters, setFilters] = useFilters();
   const qs = filtersToQuery(filters);
+  const qc = useQueryClient();
   const facets = useQuery({ queryKey: ['facets'], queryFn: getFacets });
   const leads = useQuery({ queryKey: ['leads', qs], queryFn: () => getLeads(qs) });
+  const pipeline = useQuery({ queryKey: ['pipeline'], queryFn: getPipeline });
+  const add = useMutation({ mutationFn: addToPipeline, onSuccess: () => qc.invalidateQueries({ queryKey: ['pipeline'] }) });
+  const ids = new Set((pipeline.data ?? []).map((p) => p.leadId));
 
   return (
     <div className="flex gap-6 p-6">
@@ -22,7 +26,9 @@ export default function Explorer() {
             Exportar CSV
           </button>
         </div>
-        {leads.data && <LeadsTable items={leads.data.items} />}
+        {leads.data && (
+          <LeadsTable items={leads.data.items} pipelineLeadIds={ids} onAdd={(id) => add.mutate(id)} />
+        )}
       </main>
     </div>
   );

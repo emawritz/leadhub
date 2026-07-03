@@ -15,6 +15,13 @@
       "when": 1783037368332,
       "tag": "0001_chubby_nehzno",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1783045467654,
+      "tag": "0002_classy_the_executioner",
+      "breakpoints": true
     }
   ]
 }
