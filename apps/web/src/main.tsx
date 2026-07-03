@@ -5,6 +5,8 @@ import { BrowserRouter, Navigate, Routes, Route } from 'react-router-dom';
 import { AuthProvider, useAuth } from './auth.js';
 import Login from './pages/Login.js';
 import Explorer from './pages/Explorer.js';
+import Buscar from './pages/Buscar.js';
+import Nav from './components/Nav.js';
 import './index.css';
 
 const queryClient = new QueryClient();
@@ -23,7 +25,17 @@ function App() {
         path="/"
         element={
           <RequireAuth>
+            <Nav />
             <Explorer />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/buscar"
+        element={
+          <RequireAuth>
+            <Nav />
+            <Buscar />
           </RequireAuth>
         }
       />

@@ -19,6 +19,17 @@ export type Facets = Record<'provincia' | 'localidad' | 'categoria' | 'fuente', 
 export const getFacets = () => req<Facets>('/leads/facets');
 export const getLeads = (qs: string) => req<{ items: Lead[]; total: number; page: number; pageSize: number }>(`/leads?${qs}`);
 
+export interface ScrapeJob {
+  id: string; query: string; location: string;
+  status: 'queued' | 'running' | 'done' | 'error';
+  phase: string; done: number; total: number;
+  leadsFound: number; inserted: number; updated: number; error: string;
+  createdAt: string;
+}
+export const createScrape = (body: { query: string; location: string; max?: number; enrich?: boolean; excludeChains?: boolean }) =>
+  req<ScrapeJob>('/scrape', { method: 'POST', body: JSON.stringify(body) });
+export const listScrapes = () => req<ScrapeJob[]>('/scrape');
+
 export async function downloadCsv(qs: string) {
   const res = await fetch(`/api/leads/export?${qs}`, { method: 'POST', headers: token ? { authorization: `Bearer ${token}` } : {} });
   if (!res.ok) throw new Error('No se pudo exportar');
