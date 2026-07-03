@@ -38,6 +38,7 @@ export interface PipelineCard {
   leadId: string; nombre: string; categoria: string; localidad: string; telefono: string; email: string;
   pendientes: number;
   proximoVence: string | null;
+  score: number;
 }
 export interface PipelineLeadRow {
   id: string; leadId: string; ownerId: string | null; stage: string; createdAt: string; updatedAt: string;

@@ -3,6 +3,7 @@ import { and, desc, eq, lt, sql } from 'drizzle-orm';
 import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { pipelineCreateSchema, pipelineUpdateSchema, stageLabel, STAGE_IDS } from '@leadhub/core';
 import { pipelineLeads, activities, tasks, leads, accounts } from '../db/schema.js';
+import { leadScoreSql } from '../leads/score.js';
 import { requireAuth } from '../auth/require-auth.js';
 import { isUuid } from './params.js';
 
@@ -23,6 +24,7 @@ export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
         email: leads.email,
         pendientes: sql<number>`(select count(*)::int from ${tasks} t where t.pipeline_lead_id = ${pipelineLeads.id} and t.hecha = false)`,
         proximoVence: sql<string | null>`(select min(t.vence) from ${tasks} t where t.pipeline_lead_id = ${pipelineLeads.id} and t.hecha = false)`,
+        score: leadScoreSql(),
       })
       .from(pipelineLeads)
       .innerJoin(leads, eq(leads.id, pipelineLeads.leadId))
