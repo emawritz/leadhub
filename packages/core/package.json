@@ -2,7 +2,10 @@
   "name": "@leadhub/core",
   "version": "0.1.0",
   "type": "module",
-  "exports": { ".": "./dist/index.js", "./stages": "./dist/stages.js" },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./stages": { "types": "./dist/stages.d.ts", "import": "./dist/stages.js" }
+  },
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc",
