@@ -4,6 +4,7 @@ import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
 import { pipelineCreateSchema, pipelineUpdateSchema, stageLabel } from '@leadhub/core';
 import { pipelineLeads, activities, tasks, leads, accounts } from '../db/schema.js';
 import { requireAuth } from '../auth/require-auth.js';
+import { isUuid } from './params.js';
 
 export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
   // Tablero: pipeline_leads + datos del lead + dueño + conteo de tareas pendientes
@@ -41,6 +42,7 @@ export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
 
   app.patch('/pipeline/:id', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
+    if (!isUuid(id)) return reply.code(400).send({ ok: false, error: 'id inválido' });
     const parsed = pipelineUpdateSchema.safeParse(req.body);
     if (!parsed.success) return reply.code(400).send({ ok: false, error: 'Datos inválidos' });
     const [current] = await db.select().from(pipelineLeads).where(eq(pipelineLeads.id, id)).limit(1);
@@ -59,14 +61,16 @@ export function pipelineRoutes(app: FastifyInstance, db: NodePgDatabase) {
     return { ok: true, data: row };
   });
 
-  app.delete('/pipeline/:id', { preHandler: [requireAuth] }, async (req) => {
+  app.delete('/pipeline/:id', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
+    if (!isUuid(id)) return reply.code(400).send({ ok: false, error: 'id inválido' });
     await db.delete(pipelineLeads).where(eq(pipelineLeads.id, id));
     return { ok: true, data: { id } };
   });
 
   app.get('/pipeline/:id', { preHandler: [requireAuth] }, async (req, reply) => {
     const { id } = req.params as { id: string };
+    if (!isUuid(id)) return reply.code(400).send({ ok: false, error: 'id inválido' });
     const [pl] = await db.select().from(pipelineLeads).where(eq(pipelineLeads.id, id)).limit(1);
     if (!pl) return reply.code(404).send({ ok: false, error: 'No encontrado' });
     const [lead] = await db.select().from(leads).where(eq(leads.id, pl.leadId)).limit(1);
