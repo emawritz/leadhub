@@ -53,8 +53,8 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
         <div className="flex items-center gap-1.5">
           {vence && (
             <span
-              className={`text-[11px] px-1.5 py-0.5 rounded-sm ${vencida ? '' : 'bg-parchment text-muted'}`}
-              style={vencida ? { backgroundColor: `${perdidoColor}1a`, color: perdidoColor } : undefined}
+              className={`text-[11px] px-1.5 py-0.5 rounded-sm ${vencida ? 'text-danger' : 'bg-parchment text-muted'}`}
+              style={vencida ? { backgroundColor: `${perdidoColor}1a` } : undefined}
             >
               ⏰ {vence.toLocaleDateString()}
             </span>

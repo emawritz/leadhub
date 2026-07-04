@@ -1,6 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-// Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
-import { stageColor } from '@leadhub/core/stages';
 import { getPendingTasks, toggleTask } from '../api.js';
 import Loading from '../components/Loading.js';
 import EmptyState from '../components/EmptyState.js';
@@ -13,7 +11,6 @@ export default function Tareas() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ['tasks'] }),
   });
   const now = Date.now();
-  const perdidoColor = stageColor('perdido');
   return (
     <div className="p-6 max-w-2xl">
       <h1 className="text-xl font-semibold text-ink tracking-tight mb-4">Tareas pendientes</h1>
@@ -35,10 +32,7 @@ export default function Tareas() {
                   <div className="text-xs text-muted">{t.leadNombre}</div>
                 </div>
                 {t.vence && (
-                  <span
-                    className={`text-xs ${vencida ? 'font-medium' : 'text-faint'}`}
-                    style={vencida ? { color: perdidoColor } : undefined}
-                  >
+                  <span className={`text-xs ${vencida ? 'font-medium text-danger' : 'text-faint'}`}>
                     {new Date(t.vence).toLocaleDateString()}
                   </span>
                 )}

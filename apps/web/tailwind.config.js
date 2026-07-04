@@ -12,6 +12,8 @@ export default {
         faint: 'var(--color-faint)',
         accent: 'var(--color-accent)',
         'accent-focus': 'var(--color-accent-focus)',
+        danger: 'var(--color-danger)',
+        'accent-btn': 'var(--color-accent-btn)',
         hairline: 'var(--color-hairline)',
         divider: 'var(--color-divider)',
         nav: 'var(--color-nav)',

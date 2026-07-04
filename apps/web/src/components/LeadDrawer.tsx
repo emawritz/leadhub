@@ -111,7 +111,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                 <select value={d.pipeline.stage} onChange={(e) => stageMut.mutate(e.target.value)} className={selectCls}>
                   {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                 </select>
-                <button onClick={() => delMut.mutate()} className="ml-auto text-sm font-medium hover:underline" style={{ color: stageColor('perdido') }}>Sacar</button>
+                <button onClick={() => delMut.mutate()} className="ml-auto text-sm font-medium text-danger hover:underline">Sacar</button>
               </div>
 
               <div className="mt-2 flex items-center gap-2">
@@ -144,7 +144,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                       <input type="checkbox" checked={t.hecha} onChange={(e) => toggleMut.mutate({ id: t.id, hecha: e.target.checked })} />
                       <span className={`flex-1 ${t.hecha ? 'line-through text-faint' : 'text-ink'}`}>{t.titulo}</span>
                       {venc && (
-                        <span className={`text-xs ${vencida ? 'font-medium' : 'text-faint'}`} style={vencida ? { color: stageColor('perdido') } : undefined}>
+                        <span className={`text-xs ${vencida ? 'font-medium text-danger' : 'text-faint'}`}>
                           {venc.toLocaleDateString()}
                         </span>
                       )}
