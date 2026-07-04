@@ -23,14 +23,15 @@ export default function LeadsTable({ items, pipelineByLead, onAdd }: Props) {
   return (
     <div className="overflow-x-auto card">
       <table className="w-full text-sm text-left">
+        <caption className="sr-only">Listado de leads filtrados</caption>
         <thead className="border-b border-hairline text-muted text-[13px]">
           <tr>
-            <th className="p-2">Lead</th>
-            <th className="p-2">Ubicación</th>
-            <th className="p-2">Contacto</th>
-            <th className="p-2">Datos</th>
-            <th className="p-2">Prioridad</th>
-            <th className="p-2">Estado</th>
+            <th scope="col" className="p-2">Lead</th>
+            <th scope="col" className="p-2">Ubicación</th>
+            <th scope="col" className="p-2">Contacto</th>
+            <th scope="col" className="p-2">Datos</th>
+            <th scope="col" className="p-2">Prioridad</th>
+            <th scope="col" className="p-2">Estado</th>
           </tr>
         </thead>
         <tbody>
@@ -50,17 +51,17 @@ export default function LeadsTable({ items, pipelineByLead, onAdd }: Props) {
                 <div className="text-muted text-[12px] truncate">{lead.email}</div>
                 <div className="flex gap-2 text-accent text-[12px]">
                   {lead.instagram && (
-                    <a href={lead.instagram} target="_blank" rel="noreferrer" className="underline">
+                    <a href={lead.instagram} target="_blank" rel="noreferrer" aria-label={`Instagram de ${lead.razonSocial}`} className="underline">
                       IG
                     </a>
                   )}
                   {lead.facebook && (
-                    <a href={lead.facebook} target="_blank" rel="noreferrer" className="underline">
+                    <a href={lead.facebook} target="_blank" rel="noreferrer" aria-label={`Facebook de ${lead.razonSocial}`} className="underline">
                       FB
                     </a>
                   )}
                   {lead.whatsapp && (
-                    <a href={lead.whatsapp} target="_blank" rel="noreferrer" className="underline">
+                    <a href={lead.whatsapp} target="_blank" rel="noreferrer" aria-label={`WhatsApp de ${lead.razonSocial}`} className="underline">
                       WA
                     </a>
                   )}

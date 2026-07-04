@@ -18,7 +18,7 @@ export default function Dashboard() {
   const s = stats.data;
   const max = s ? Math.max(1, ...Object.values(s.porEtapa)) : 1;
   return (
-    <div className="p-6 max-w-3xl">
+    <main id="main" className="p-6 max-w-3xl">
       <h1 className="text-xl font-semibold text-ink tracking-tight mb-4">Dashboard</h1>
       {stats.isError ? (
         <EmptyState icon="⚠️" title="No se pudo cargar el dashboard" />
@@ -51,6 +51,6 @@ export default function Dashboard() {
           </div>
         </>
       )}
-    </div>
+    </main>
   );
 }

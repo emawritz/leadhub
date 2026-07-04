@@ -114,7 +114,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                   <p className="text-sm text-muted">{d.lead.categoria} · {d.lead.localidad}</p>
                   <p className="text-sm text-muted">{d.lead.telefono} · {d.lead.email}</p>
                 </div>
-                <button onClick={onClose} className="text-faint hover:text-ink text-lg leading-none">✕</button>
+                <button onClick={onClose} aria-label="Cerrar" className="text-faint hover:text-ink text-lg leading-none">✕</button>
               </div>
 
               <div className="mt-3 flex gap-2">
@@ -126,7 +126,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                     onClick={() => outreachMut.mutate({ tipo: 'whatsapp', cuerpo: 'Mensaje iniciado por WhatsApp' })}
                     className="btn"
                   >
-                    💬 WhatsApp
+                    <span aria-hidden="true">💬</span> WhatsApp
                   </a>
                 )}
                 {d.lead.email && (
@@ -135,7 +135,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                     onClick={() => outreachMut.mutate({ tipo: 'email', cuerpo: 'Mensaje iniciado por email' })}
                     className="btn-ghost"
                   >
-                    ✉️ Email
+                    <span aria-hidden="true">✉️</span> Email
                   </a>
                 )}
               </div>
@@ -148,7 +148,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stageColor(d.pipeline.stage) }} />
                   Etapa
                 </span>
-                <select value={d.pipeline.stage} onChange={(e) => stageMut.mutate(e.target.value)} className={selectCls}>
+                <select aria-label="Etapa" value={d.pipeline.stage} onChange={(e) => stageMut.mutate(e.target.value)} className={selectCls}>
                   {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                 </select>
                 <button onClick={() => delMut.mutate()} className="ml-auto text-sm font-medium text-danger hover:underline">Sacar</button>
@@ -157,6 +157,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-sm font-medium text-muted">Dueño</span>
                 <select
+                  aria-label="Dueño"
                   value={d.pipeline.ownerId ?? ''}
                   onChange={(e) => ownerMut.mutate(e.target.value === '' ? null : e.target.value)}
                   className={selectCls}
@@ -171,9 +172,9 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
             <div className="border-t border-hairline pt-4 mt-4">
               <h3 className="font-semibold text-ink tracking-tight mb-2">Tareas</h3>
               <div className="flex gap-1.5 mb-2">
-                <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nueva tarea" className={`${composerCls} flex-1`} />
-                <input type="datetime-local" value={vence} onChange={(e) => setVence(e.target.value)} className={composerCls} />
-                <button disabled={!titulo || taskMut.isPending} onClick={() => taskMut.mutate()} className={addBtnCls}>+</button>
+                <input aria-label="Nueva tarea" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nueva tarea" className={`${composerCls} flex-1`} />
+                <input aria-label="Vencimiento de la tarea" type="datetime-local" value={vence} onChange={(e) => setVence(e.target.value)} className={composerCls} />
+                <button aria-label="Agregar tarea" disabled={!titulo || taskMut.isPending} onClick={() => taskMut.mutate()} className={addBtnCls}>+</button>
               </div>
               <ul className="text-sm space-y-1">
                 {d.tasks.map((t) => {
@@ -199,11 +200,11 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
             <div className="border-t border-hairline pt-4 mt-4">
               <h3 className="font-semibold text-ink tracking-tight mb-2">Actividad</h3>
               <div className="flex gap-1.5 mb-3">
-                <select value={tipo} onChange={(e) => setTipo(e.target.value)} className={selectCls}>
+                <select aria-label="Tipo de actividad" value={tipo} onChange={(e) => setTipo(e.target.value)} className={selectCls}>
                   {USER_ACTIVITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
-                <input value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} placeholder="Registrar…" className={`${composerCls} flex-1`} />
-                <button disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className={addBtnCls}>+</button>
+                <input aria-label="Registrar actividad" value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} placeholder="Registrar…" className={`${composerCls} flex-1`} />
+                <button aria-label="Registrar actividad" disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className={addBtnCls}>+</button>
               </div>
               <ul className="space-y-2">
                 {d.activities.map((a) => {

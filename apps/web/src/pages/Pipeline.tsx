@@ -19,13 +19,13 @@ export default function Pipeline() {
     setParams(p);
   };
   return (
-    <div className="bg-canvas">
+    <main id="main" className="bg-canvas">
       <div className="flex items-center justify-between px-4 pt-4">
         <h1 className="text-xl font-semibold text-ink tracking-tight">Pipeline</h1>
       </div>
       <BoardFilters value={filter} onChange={setFilter} />
       <KanbanBoard onOpen={open} filter={filter} />
       {selected && <LeadDrawer pipelineId={selected} onClose={close} />}
-    </div>
+    </main>
   );
 }

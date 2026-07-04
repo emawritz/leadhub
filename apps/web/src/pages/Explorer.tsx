@@ -36,11 +36,13 @@ export default function Explorer() {
       <aside className="w-72 shrink-0">
         {facets.data && <Filters facets={facets.data} filters={filters} setFilters={setFilters} />}
       </aside>
-      <main className="flex-1">
+      <main id="main" className="flex-1">
+        <h1 className="sr-only">Explorador de leads</h1>
         <div className="flex justify-between items-center mb-3">
           <span className="text-muted text-[15px]">{leads.data?.total ?? 0} resultados</span>
           <div className="flex gap-2 items-center">
             <select
+              aria-label="Ordenar por"
               value={filters.sort ?? 'nombre'}
               onChange={(e) => setFilters({ ...filters, sort: e.target.value, page: 1 })}
               className="input"

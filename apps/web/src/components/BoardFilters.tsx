@@ -8,12 +8,14 @@ export default function BoardFilters({ value, onChange }: { value: BoardFilter; 
   return (
     <div className="flex items-center gap-2 px-4 py-2">
       <input
+        aria-label="Buscar por nombre"
         value={value.q}
         onChange={(e) => onChange({ ...value, q: e.target.value })}
         placeholder="Buscar por nombre…"
         className="input w-56"
       />
       <select
+        aria-label="Filtrar por dueño"
         value={value.owner}
         onChange={(e) => onChange({ ...value, owner: e.target.value })}
         className="border border-hairline rounded-md bg-surface px-2 py-1 text-sm text-ink"

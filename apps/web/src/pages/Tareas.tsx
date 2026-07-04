@@ -12,7 +12,7 @@ export default function Tareas() {
   });
   const now = Date.now();
   return (
-    <div className="p-6 max-w-2xl">
+    <main id="main" className="p-6 max-w-2xl">
       <h1 className="text-xl font-semibold text-ink tracking-tight mb-4">Tareas pendientes</h1>
       {tasks.isError ? (
         <EmptyState icon="⚠️" title="No se pudieron cargar las tareas" />
@@ -41,6 +41,6 @@ export default function Tareas() {
           })}
         </ul>
       )}
-    </div>
+    </main>
   );
 }
