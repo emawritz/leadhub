@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
-import { DndContext, DragOverlay, useDroppable, type DragEndEvent, type DragStartEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, DragOverlay, useDroppable, type DragEndEvent, type DragStartEvent, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import type { BoardFilter } from './BoardFilters.js';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
-import { STAGES, CLOSED_STAGES, stageColor } from '@leadhub/core/stages';
+import { STAGES, CLOSED_STAGES, stageColor, stageLabel } from '@leadhub/core/stages';
 import { getPipeline, updatePipeline, type PipelineCard } from '../api.js';
 import { useToast } from '../toast.js';
 import KanbanCard from './KanbanCard.js';
@@ -35,15 +35,17 @@ function Column({ stageId, label, cards, onOpen }: { stageId: string; label: str
       className={`w-64 shrink-0 rounded-lg p-2 transition-colors ${isOver ? 'bg-surface' : 'bg-parchment'}`}
     >
       <div className="flex items-center justify-between px-1 pb-2">
-        <span className="text-sm font-semibold text-ink flex items-center gap-1">
+        <span className="text-sm font-semibold text-ink flex items-center gap-1" role="heading" aria-level={2}>
           <span className="inline-block w-2 h-2 rounded-full" style={{ backgroundColor: color }} />
           {closed ? `✓ ${label}` : label}
         </span>
         <span className="text-xs text-faint">{cards.length}</span>
       </div>
-      {cards.length === 0
-        ? <div className="text-xs text-faint border border-dashed border-hairline rounded-md p-3 text-center">Vacío</div>
-        : cards.map((c) => <KanbanCard key={c.id} card={c} onOpen={onOpen} />)}
+      <div role="list" aria-label={label}>
+        {cards.length === 0
+          ? <div className="text-xs text-faint border border-dashed border-hairline rounded-md p-3 text-center">Vacío</div>
+          : cards.map((c) => <KanbanCard key={c.id} card={c} onOpen={onOpen} />)}
+      </div>
     </div>
   );
 }
@@ -65,7 +67,10 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
     onError: (_e, _v, ctx) => { if (ctx?.prev) qc.setQueryData(['pipeline'], ctx.prev); toast.error('No se pudo mover la tarjeta'); },
     onSettled: () => { qc.invalidateQueries({ queryKey: ['pipeline'] }); qc.invalidateQueries({ queryKey: ['pipeline-stats'] }); },
   });
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor),
+  );
   const all = pipeline.data ?? [];
   const cards = all.filter((c) => {
     if (filter?.q && !c.nombre.toLowerCase().includes(filter.q.toLowerCase())) return false;
@@ -91,7 +96,19 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
   if (all.length === 0) return <EmptyState icon="📋" title="Pipeline vacío" hint="Agregá leads desde Explorar" />;
 
   return (
-    <DndContext sensors={sensors} onDragStart={onDragStart} onDragEnd={onDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={onDragStart}
+      onDragEnd={onDragEnd}
+      accessibility={{
+        announcements: {
+          onDragStart: ({ active }) => `Tomaste la tarjeta ${String(active.id)}.`,
+          onDragOver: ({ over }) => (over ? `Sobre la etapa ${stageLabel(String(over.id))}.` : 'Fuera de las etapas.'),
+          onDragEnd: ({ over }) => (over ? `Soltaste en ${stageLabel(String(over.id))}.` : 'Cancelado.'),
+          onDragCancel: () => 'Movimiento cancelado.',
+        },
+      }}
+    >
       <div className="flex gap-3 overflow-x-auto p-4">
         {STAGES.map((s) => (
           <Column key={s.id} stageId={s.id} label={s.label} cards={cards.filter((c) => c.stage === s.id).sort((a, b) => b.score - a.score)} onOpen={onOpen} />
