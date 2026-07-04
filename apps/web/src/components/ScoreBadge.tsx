@@ -13,8 +13,8 @@ export default function ScoreBadge({ score, title }: { score: number; title?: st
   return (
     <span
       title={title}
-      className="inline-flex items-center justify-center min-w-[2.25rem] px-1.5 py-0.5 rounded-pill text-[12px] font-semibold"
-      style={{ color, backgroundColor: `${color}1f` }}
+      className="inline-flex items-center justify-center min-w-[2.25rem] px-1.5 py-0.5 rounded-pill text-[12px] font-semibold text-ink border"
+      style={{ borderColor: color, backgroundColor: `${color}1f` }}
     >
       {score}
     </span>

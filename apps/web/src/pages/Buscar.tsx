@@ -14,10 +14,10 @@ export default function Buscar() {
     onError: (e) => toast.error((e as Error).message),
   });
   return (
-    <div className="min-h-screen bg-canvas p-6">
+    <main id="main" className="min-h-screen bg-canvas p-6">
       <h1 className="text-2xl font-semibold text-ink tracking-tight mb-6">Buscar en Google Maps</h1>
       <SearchForm disabled={mut.isPending} onSubmit={(b) => mut.mutate(b)} />
       {jobs.data && <JobsList jobs={jobs.data} />}
-    </div>
+    </main>
   );
 }

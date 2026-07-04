@@ -33,6 +33,12 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
       {...listeners}
       {...attributes}
       onClick={() => onOpen(card.id)}
+      onKeyDown={(e) => {
+        listeners?.onKeyDown?.(e);         // KeyboardSensor: Espacio levanta/suelta
+        if (e.defaultPrevented) return;    // si el sensor tomó el evento, no abrir
+        if (e.key === 'Enter') { e.preventDefault(); onOpen(card.id); }
+      }}
+      aria-label={`${card.nombre}, prioridad ${card.score}${vencida ? ', con tarea vencida' : ''}`}
       className={`group card p-2.5 mb-2 cursor-grab transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-focus ${isDragging ? 'opacity-50' : ''}`}
     >
       <div className="font-semibold text-sm text-ink truncate">{card.nombre}</div>
@@ -53,8 +59,8 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
         <div className="flex items-center gap-1.5">
           {vence && (
             <span
-              className={`text-[11px] px-1.5 py-0.5 rounded-sm ${vencida ? '' : 'bg-parchment text-muted'}`}
-              style={vencida ? { backgroundColor: `${perdidoColor}1a`, color: perdidoColor } : undefined}
+              className={`text-[11px] px-1.5 py-0.5 rounded-sm ${vencida ? 'text-danger' : 'bg-parchment text-muted'}`}
+              style={vencida ? { backgroundColor: `${perdidoColor}1a` } : undefined}
             >
               ⏰ {vence.toLocaleDateString()}
             </span>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import KanbanBoard from '../components/KanbanBoard.js';
 import LeadDrawer from '../components/LeadDrawer.js';
@@ -6,6 +6,9 @@ import BoardFilters, { type BoardFilter } from '../components/BoardFilters.js';
 
 export default function Pipeline() {
   const [selected, setSelected] = useState<string | null>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const open = (id: string) => { triggerRef.current = document.activeElement as HTMLElement; setSelected(id); };
+  const close = () => { setSelected(null); triggerRef.current?.focus?.(); };
   const [params, setParams] = useSearchParams();
   const filter: BoardFilter = { q: params.get('q') ?? '', owner: params.get('owner') ?? '', vencidas: params.get('vencidas') === '1' };
   const setFilter = (f: BoardFilter) => {
@@ -16,13 +19,13 @@ export default function Pipeline() {
     setParams(p);
   };
   return (
-    <div className="bg-canvas">
+    <main id="main" className="bg-canvas">
       <div className="flex items-center justify-between px-4 pt-4">
         <h1 className="text-xl font-semibold text-ink tracking-tight">Pipeline</h1>
       </div>
       <BoardFilters value={filter} onChange={setFilter} />
-      <KanbanBoard onOpen={setSelected} filter={filter} />
-      {selected && <LeadDrawer pipelineId={selected} onClose={() => setSelected(null)} />}
-    </div>
+      <KanbanBoard onOpen={open} filter={filter} />
+      {selected && <LeadDrawer pipelineId={selected} onClose={close} />}
+    </main>
   );
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
 import { STAGES, USER_ACTIVITY_TYPES, ACTIVITY_META, stageColor } from '@leadhub/core/stages';
@@ -12,6 +12,23 @@ function soloDigitos(tel: string | null | undefined): string { return (tel ?? ''
 const NEUTRAL = { icon: '•', color: '#94a3b8' };
 
 export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string; onClose: () => void }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const trapFocus = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Tab' || !panelRef.current) return;
+    const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+      'a[href],button:not([disabled]),select:not([disabled]),input:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])',
+    );
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
   const qc = useQueryClient();
   const toast = useToast();
   const detail = useQuery({ queryKey: ['pipeline', pipelineId], queryFn: () => getPipelineDetail(pipelineId) });
@@ -54,12 +71,35 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   });
 
   const d = detail.data;
+  const focusedOnceRef = useRef(false);
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!d || focusedOnceRef.current) return;
+    panelRef.current?.querySelector<HTMLElement>('#drawer-title')?.focus();
+    focusedOnceRef.current = true;
+  }, [d]);
   const selectCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-accent';
   const composerCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent';
   const addBtnCls = 'bg-accent text-on-accent px-2.5 rounded-md text-sm transition-transform active:scale-95 disabled:opacity-40 disabled:active:scale-100';
   return (
     <div className="fixed inset-0 bg-black/30 flex justify-end z-50" onClick={onClose}>
-      <div className="w-[28rem] bg-surface border-l border-hairline h-full overflow-y-auto p-5" onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="drawer-title"
+        className="w-[28rem] bg-surface border-l border-hairline h-full overflow-y-auto p-5"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={trapFocus}
+      >
         {detail.isError ? (
           <EmptyState icon="⚠️" title="No se pudo cargar el lead" />
         ) : !d ? (
@@ -70,11 +110,11 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
             <div>
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="font-semibold text-lg text-ink tracking-tight">{d.lead.nombreFantasia}</h2>
+                  <h2 id="drawer-title" tabIndex={-1} className="font-semibold text-lg text-ink tracking-tight">{d.lead.nombreFantasia}</h2>
                   <p className="text-sm text-muted">{d.lead.categoria} · {d.lead.localidad}</p>
                   <p className="text-sm text-muted">{d.lead.telefono} · {d.lead.email}</p>
                 </div>
-                <button onClick={onClose} className="text-faint hover:text-ink text-lg leading-none">✕</button>
+                <button onClick={onClose} aria-label="Cerrar" className="text-faint hover:text-ink text-lg leading-none">✕</button>
               </div>
 
               <div className="mt-3 flex gap-2">
@@ -86,7 +126,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                     onClick={() => outreachMut.mutate({ tipo: 'whatsapp', cuerpo: 'Mensaje iniciado por WhatsApp' })}
                     className="btn"
                   >
-                    💬 WhatsApp
+                    <span aria-hidden="true">💬</span> WhatsApp
                   </a>
                 )}
                 {d.lead.email && (
@@ -95,7 +135,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                     onClick={() => outreachMut.mutate({ tipo: 'email', cuerpo: 'Mensaje iniciado por email' })}
                     className="btn-ghost"
                   >
-                    ✉️ Email
+                    <span aria-hidden="true">✉️</span> Email
                   </a>
                 )}
               </div>
@@ -108,15 +148,16 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                   <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: stageColor(d.pipeline.stage) }} />
                   Etapa
                 </span>
-                <select value={d.pipeline.stage} onChange={(e) => stageMut.mutate(e.target.value)} className={selectCls}>
+                <select aria-label="Etapa" value={d.pipeline.stage} onChange={(e) => stageMut.mutate(e.target.value)} className={selectCls}>
                   {STAGES.map((s) => <option key={s.id} value={s.id}>{s.label}</option>)}
                 </select>
-                <button onClick={() => delMut.mutate()} className="ml-auto text-sm font-medium hover:underline" style={{ color: stageColor('perdido') }}>Sacar</button>
+                <button onClick={() => delMut.mutate()} className="ml-auto text-sm font-medium text-danger hover:underline">Sacar</button>
               </div>
 
               <div className="mt-2 flex items-center gap-2">
                 <span className="text-sm font-medium text-muted">Dueño</span>
                 <select
+                  aria-label="Dueño"
                   value={d.pipeline.ownerId ?? ''}
                   onChange={(e) => ownerMut.mutate(e.target.value === '' ? null : e.target.value)}
                   className={selectCls}
@@ -131,9 +172,9 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
             <div className="border-t border-hairline pt-4 mt-4">
               <h3 className="font-semibold text-ink tracking-tight mb-2">Tareas</h3>
               <div className="flex gap-1.5 mb-2">
-                <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nueva tarea" className={`${composerCls} flex-1`} />
-                <input type="datetime-local" value={vence} onChange={(e) => setVence(e.target.value)} className={composerCls} />
-                <button disabled={!titulo || taskMut.isPending} onClick={() => taskMut.mutate()} className={addBtnCls}>+</button>
+                <input aria-label="Nueva tarea" value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Nueva tarea" className={`${composerCls} flex-1`} />
+                <input aria-label="Vencimiento de la tarea" type="datetime-local" value={vence} onChange={(e) => setVence(e.target.value)} className={composerCls} />
+                <button aria-label="Agregar tarea" disabled={!titulo || taskMut.isPending} onClick={() => taskMut.mutate()} className={addBtnCls}>+</button>
               </div>
               <ul className="text-sm space-y-1">
                 {d.tasks.map((t) => {
@@ -144,7 +185,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                       <input type="checkbox" checked={t.hecha} onChange={(e) => toggleMut.mutate({ id: t.id, hecha: e.target.checked })} />
                       <span className={`flex-1 ${t.hecha ? 'line-through text-faint' : 'text-ink'}`}>{t.titulo}</span>
                       {venc && (
-                        <span className={`text-xs ${vencida ? 'font-medium' : 'text-faint'}`} style={vencida ? { color: stageColor('perdido') } : undefined}>
+                        <span className={`text-xs ${vencida ? 'font-medium text-danger' : 'text-faint'}`}>
                           {venc.toLocaleDateString()}
                         </span>
                       )}
@@ -159,11 +200,11 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
             <div className="border-t border-hairline pt-4 mt-4">
               <h3 className="font-semibold text-ink tracking-tight mb-2">Actividad</h3>
               <div className="flex gap-1.5 mb-3">
-                <select value={tipo} onChange={(e) => setTipo(e.target.value)} className={selectCls}>
+                <select aria-label="Tipo de actividad" value={tipo} onChange={(e) => setTipo(e.target.value)} className={selectCls}>
                   {USER_ACTIVITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
-                <input value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} placeholder="Registrar…" className={`${composerCls} flex-1`} />
-                <button disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className={addBtnCls}>+</button>
+                <input aria-label="Registrar actividad" value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} placeholder="Registrar…" className={`${composerCls} flex-1`} />
+                <button aria-label="Registrar actividad" disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className={addBtnCls}>+</button>
               </div>
               <ul className="space-y-2">
                 {d.activities.map((a) => {
