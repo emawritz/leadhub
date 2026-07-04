@@ -1,15 +1,13 @@
 import { Link } from 'react-router-dom';
 import type { ScrapeJob } from '../api.js';
 import { jobLabel } from '../jobLabel.js';
-// Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
-import { stageColor } from '@leadhub/core/stages';
 import EmptyState from './EmptyState.js';
 
 const STATUS_COLOR: Record<ScrapeJob['status'], string> = {
-  queued: '#86868b',
+  queued: 'var(--color-muted)',
   running: 'var(--color-accent)',
-  done: stageColor('ganado'),
-  error: stageColor('perdido'),
+  done: 'var(--color-success)',
+  error: 'var(--color-danger)',
 };
 
 export default function JobsList({ jobs }: { jobs: ScrapeJob[] }) {

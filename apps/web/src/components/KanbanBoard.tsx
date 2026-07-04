@@ -43,7 +43,7 @@ function Column({ stageId, label, cards, onOpen }: { stageId: string; label: str
       </div>
       <div role="list" aria-label={label}>
         {cards.length === 0
-          ? <div className="text-xs text-faint border border-dashed border-hairline rounded-md p-3 text-center">Vacío</div>
+          ? <div role="listitem" className="text-xs text-faint border border-dashed border-hairline rounded-md p-3 text-center">Vacío</div>
           : cards.map((c) => <div role="listitem" key={c.id}><KanbanCard card={c} onOpen={onOpen} /></div>)}
       </div>
     </div>

@@ -13,6 +13,7 @@ export default {
         accent: 'var(--color-accent)',
         'accent-focus': 'var(--color-accent-focus)',
         danger: 'var(--color-danger)',
+        success: 'var(--color-success)',
         'accent-btn': 'var(--color-accent-btn)',
         hairline: 'var(--color-hairline)',
         divider: 'var(--color-divider)',

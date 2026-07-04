@@ -20,7 +20,7 @@ export default function Login() {
         <input id="login-email" autoComplete="email" className="input w-full" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
         <label className="sr-only" htmlFor="login-password">Contraseña</label>
         <input id="login-password" autoComplete="current-password" className="input w-full" type="password" placeholder="Contraseña" value={pw} onChange={(e) => setPw(e.target.value)} />
-        {err && <p role="alert" className="text-[13px]" style={{ color: '#b23b3b' }}>{err}</p>}
+        {err && <p role="alert" className="text-[13px] text-danger">{err}</p>}
         <button className="btn w-full">Entrar</button>
       </form>
     </div>
