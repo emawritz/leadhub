@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 // Import directo del subpath para evitar que Vite empaquete el resto de @leadhub/core.
 import { STAGES, USER_ACTIVITY_TYPES, ACTIVITY_META, stageColor } from '@leadhub/core/stages';
@@ -12,6 +12,23 @@ function soloDigitos(tel: string | null | undefined): string { return (tel ?? ''
 const NEUTRAL = { icon: '•', color: '#94a3b8' };
 
 export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string; onClose: () => void }) {
+  const panelRef = useRef<HTMLDivElement>(null);
+  const trapFocus = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'Tab' || !panelRef.current) return;
+    const focusables = panelRef.current.querySelectorAll<HTMLElement>(
+      'a,button,select,input,textarea,[tabindex]:not([tabindex="-1"])',
+    );
+    if (focusables.length === 0) return;
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    if (e.shiftKey && document.activeElement === first) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && document.activeElement === last) {
+      e.preventDefault();
+      first.focus();
+    }
+  };
   const qc = useQueryClient();
   const toast = useToast();
   const detail = useQuery({ queryKey: ['pipeline', pipelineId], queryFn: () => getPipelineDetail(pipelineId) });
@@ -54,12 +71,29 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   });
 
   const d = detail.data;
+  useEffect(() => {
+    const titleEl = panelRef.current?.querySelector<HTMLElement>('#drawer-title');
+    titleEl?.focus();
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [onClose, d]);
   const selectCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-accent';
   const composerCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent';
   const addBtnCls = 'bg-accent text-on-accent px-2.5 rounded-md text-sm transition-transform active:scale-95 disabled:opacity-40 disabled:active:scale-100';
   return (
     <div className="fixed inset-0 bg-black/30 flex justify-end z-50" onClick={onClose}>
-      <div className="w-[28rem] bg-surface border-l border-hairline h-full overflow-y-auto p-5" onClick={(e) => e.stopPropagation()}>
+      <div
+        ref={panelRef}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="drawer-title"
+        className="w-[28rem] bg-surface border-l border-hairline h-full overflow-y-auto p-5"
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={trapFocus}
+      >
         {detail.isError ? (
           <EmptyState icon="⚠️" title="No se pudo cargar el lead" />
         ) : !d ? (
@@ -70,7 +104,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
             <div>
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 className="font-semibold text-lg text-ink tracking-tight">{d.lead.nombreFantasia}</h2>
+                  <h2 id="drawer-title" tabIndex={-1} className="font-semibold text-lg text-ink tracking-tight">{d.lead.nombreFantasia}</h2>
                   <p className="text-sm text-muted">{d.lead.categoria} · {d.lead.localidad}</p>
                   <p className="text-sm text-muted">{d.lead.telefono} · {d.lead.email}</p>
                 </div>
