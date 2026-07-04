@@ -2,6 +2,7 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import type { BrowserContext, Page } from 'playwright';
 import { launchBrowser } from './browser.js';
 import { enrichWebsite } from './web-enricher.js';
+import { enrichSocials } from './social-enricher.js';
 import { isCaptcha } from './captcha.js';
 import { isKnownChain } from './chains.js';
 import {
@@ -10,7 +11,9 @@ import {
 import { safeExtract } from '../utils/safe-extract.js';
 import { jitter, sleep } from '../utils/rate-limiter.js';
 import { logSuccess, logWarn, logError, logInfo, createProgressBar } from '../utils/logger.js';
-import { parseCoordinates, dedupeLeads, normalizeUrl, slugify } from '@leadhub/core';
+import {
+  parseCoordinates, dedupeLeads, normalizeUrl, slugify, fillEmptyFields,
+} from '@leadhub/core';
 import type {
   Enrichment, Lead, ProgressEvent, RawBusiness, ScraperOptions,
 } from '@leadhub/core';
@@ -197,7 +200,15 @@ export async function runScrape(
           const enrichment = options.enrich && biz.website
             ? await enrichWebsite(context, biz.website)
             : { email: '', cuit: '', instagram: '', facebook: '', whatsapp: '' };
-          leads.push(toLead(biz, enrichment, options.location, new Date().toISOString()));
+          let lead = toLead(biz, enrichment, options.location, new Date().toISOString());
+          if (options.enrich && (enrichment.instagram || enrichment.facebook)) {
+            const social = await enrichSocials(context, {
+              instagram: enrichment.instagram,
+              facebook: enrichment.facebook,
+            });
+            lead = fillEmptyFields(lead, social);
+          }
+          leads.push(lead);
           bar?.increment({ name: biz.name.slice(0, 30) });
           onProgress?.({
             phase: 'visit', done: i + 1, total: candidates.length, name: biz.name,
