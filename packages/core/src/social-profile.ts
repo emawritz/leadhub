@@ -73,9 +73,16 @@ export function parseFacebookProfile(html: string): SocialProfileData {
 }
 
 function jsonField(html: string, key: string): string {
-  const re = new RegExp(`"${key}"\\s*:\\s*"([^"]*)"`, 'i');
+  // Captura el valor JSON completo respetando escapes (incluye \" \/  \uXXXX).
+  const re = new RegExp(`"${key}"\\s*:\\s*"((?:[^"\\\\]|\\\\.)*)"`, 'i');
   const m = html.match(re);
-  return m ? m[1] : '';
+  if (!m) return '';
+  try {
+    // Decodifica \/ , \uXXXX, \n, \" , etc. envolviendo en comillas y parseando.
+    return JSON.parse(`"${m[1]}"`);
+  } catch {
+    return m[1].replace(/\\\//g, '/');
+  }
 }
 
 export function parseInstagramProfile(html: string): SocialProfileData {
@@ -83,7 +90,9 @@ export function parseInstagramProfile(html: string): SocialProfileData {
   const externalUrl = jsonField(html, 'external_url');
   const businessEmail = jsonField(html, 'business_email');
   const biography = jsonField(html, 'biography');
-  const email = businessEmail || filterEmails(extractEmails(biography))[0] || '';
+  const email = filterEmails(extractEmails(businessEmail))[0]
+    || filterEmails(extractEmails(biography))[0]
+    || '';
   const sitioWeb = externalUrl ? normalizeUrl(externalUrl) : '';
   const whatsapp = extractWhatsappLink(biography) || extractWhatsappLink(html);
   const out: SocialProfileData = {};

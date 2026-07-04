@@ -56,6 +56,12 @@ describe('parseInstagramProfile', () => {
   it('omite claves ausentes', () => {
     expect(parseInstagramProfile('<html><body>x</body></html>')).toEqual({});
   });
+  it('des-escapa el JSON real de IG (barras \\/ y \\uXXXX)', () => {
+    const html = `<script>{"biography":"Panader\\u00eda","external_url":"https:\\/\\/www.laespiga.com.ar\\/","business_email":"ventas\\u0040laespiga.com.ar"}</script>`;
+    const r = parseInstagramProfile(html);
+    expect(r.sitioWeb).toBe('https://www.laespiga.com.ar/');
+    expect(r.email).toBe('ventas@laespiga.com.ar');
+  });
 });
 
 import { fillEmptyFields } from '../src/social-profile.js';
