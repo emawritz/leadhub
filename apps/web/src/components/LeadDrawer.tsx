@@ -21,10 +21,15 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
     if (focusables.length === 0) return;
     const first = focusables[0];
     const last = focusables[focusables.length - 1];
-    if (e.shiftKey && document.activeElement === first) {
+    const active = document.activeElement;
+    if (![...focusables].includes(active as HTMLElement)) {
+      // Foco fuera de la lista (p. ej. el <h2> con tabIndex=-1): reencauzar al trap.
+      e.preventDefault();
+      (e.shiftKey ? last : first).focus();
+    } else if (e.shiftKey && active === first) {
       e.preventDefault();
       last.focus();
-    } else if (!e.shiftKey && document.activeElement === last) {
+    } else if (!e.shiftKey && active === last) {
       e.preventDefault();
       first.focus();
     }
@@ -204,7 +209,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
                   {USER_ACTIVITY_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
                 </select>
                 <input aria-label="Registrar actividad" value={cuerpo} onChange={(e) => setCuerpo(e.target.value)} placeholder="Registrar…" className={`${composerCls} flex-1`} />
-                <button aria-label="Registrar actividad" disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className={addBtnCls}>+</button>
+                <button aria-label="Agregar actividad" disabled={!cuerpo || actMut.isPending} onClick={() => actMut.mutate()} className={addBtnCls}>+</button>
               </div>
               <ul className="space-y-2">
                 {d.activities.map((a) => {

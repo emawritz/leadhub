@@ -41,6 +41,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           >
             <span>{t.msg}</span>
             <button
+              type="button"
               aria-label="Cerrar notificación"
               onClick={() => remove(t.id)}
               className="cursor-pointer hover:opacity-70 shrink-0 text-ink"
