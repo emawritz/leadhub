@@ -16,7 +16,7 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   const trapFocus = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (e.key !== 'Tab' || !panelRef.current) return;
     const focusables = panelRef.current.querySelectorAll<HTMLElement>(
-      'a,button,select,input,textarea,[tabindex]:not([tabindex="-1"])',
+      'a[href],button:not([disabled]),select:not([disabled]),input:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])',
     );
     if (focusables.length === 0) return;
     const first = focusables[0];
@@ -71,15 +71,21 @@ export default function LeadDrawer({ pipelineId, onClose }: { pipelineId: string
   });
 
   const d = detail.data;
+  const focusedOnceRef = useRef(false);
+
   useEffect(() => {
-    const titleEl = panelRef.current?.querySelector<HTMLElement>('#drawer-title');
-    titleEl?.focus();
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
     document.addEventListener('keydown', onKeyDown);
     return () => document.removeEventListener('keydown', onKeyDown);
-  }, [onClose, d]);
+  }, [onClose]);
+
+  useEffect(() => {
+    if (!d || focusedOnceRef.current) return;
+    panelRef.current?.querySelector<HTMLElement>('#drawer-title')?.focus();
+    focusedOnceRef.current = true;
+  }, [d]);
   const selectCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-accent';
   const composerCls = 'border border-hairline bg-surface text-ink rounded-md px-2 py-1 text-sm placeholder:text-faint focus:outline-none focus:ring-2 focus:ring-accent';
   const addBtnCls = 'bg-accent text-on-accent px-2.5 rounded-md text-sm transition-transform active:scale-95 disabled:opacity-40 disabled:active:scale-100';
