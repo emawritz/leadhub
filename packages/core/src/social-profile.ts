@@ -1,6 +1,7 @@
 import { extractEmails, filterEmails } from './email-filter.js';
 import { normalizeUrl } from './url.js';
 import { extractPhone } from './phone.js';
+import type { Lead } from './types.js';
 
 export interface SocialProfileData {
   email?: string;
@@ -89,5 +90,16 @@ export function parseInstagramProfile(html: string): SocialProfileData {
   if (email) out.email = email;
   if (sitioWeb) out.sitioWeb = sitioWeb;
   if (whatsapp) out.whatsapp = whatsapp;
+  return out;
+}
+
+const SOCIAL_FILLABLE = ['email', 'telefono', 'sitioWeb', 'whatsapp', 'direccion'] as const;
+
+export function fillEmptyFields(lead: Lead, data: SocialProfileData): Lead {
+  const out: Lead = { ...lead };
+  for (const key of SOCIAL_FILLABLE) {
+    const value = data[key];
+    if (value && out[key] === '') out[key] = value;
+  }
   return out;
 }

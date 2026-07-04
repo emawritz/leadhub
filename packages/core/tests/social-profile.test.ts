@@ -57,3 +57,35 @@ describe('parseInstagramProfile', () => {
     expect(parseInstagramProfile('<html><body>x</body></html>')).toEqual({});
   });
 });
+
+import { fillEmptyFields } from '../src/social-profile.js';
+import type { Lead } from '../src/types.js';
+
+const baseLead = (over: Partial<Lead> = {}): Lead => ({
+  razonSocial: 'La Espiga', nombreFantasia: 'La Espiga', telefono: '', email: '',
+  cuit: '', sitioWeb: '', direccion: '', localidad: '', provincia: '', categoria: '',
+  calificacionGoogle: '', cantidadResenas: '0', instagram: '', facebook: '', whatsapp: '',
+  coordenadas: '', fuente: 'Google Maps', fechaExtraccion: '2026-07-04T00:00:00Z', ...over,
+});
+
+describe('fillEmptyFields', () => {
+  it('rellena solo los campos vacíos', () => {
+    const r = fillEmptyFields(baseLead(), { email: 'a@b.com', telefono: '011', sitioWeb: 'https://x' });
+    expect(r.email).toBe('a@b.com');
+    expect(r.telefono).toBe('011');
+    expect(r.sitioWeb).toBe('https://x');
+  });
+  it('no pisa valores existentes', () => {
+    const r = fillEmptyFields(baseLead({ email: 'real@lead.com' }), { email: 'a@b.com' });
+    expect(r.email).toBe('real@lead.com');
+  });
+  it('ignora claves ausentes en data', () => {
+    const r = fillEmptyFields(baseLead(), {});
+    expect(r.email).toBe('');
+  });
+  it('no muta el lead original', () => {
+    const lead = baseLead();
+    fillEmptyFields(lead, { email: 'a@b.com' });
+    expect(lead.email).toBe('');
+  });
+});
