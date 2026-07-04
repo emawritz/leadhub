@@ -69,7 +69,7 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
   });
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor),
+    useSensor(KeyboardSensor, { keyboardCodes: { start: ['Space'], cancel: ['Escape'], end: ['Space'] } }),
   );
   const all = pipeline.data ?? [];
   const cards = all.filter((c) => {

@@ -33,7 +33,11 @@ export default function KanbanCard({ card, onOpen }: { card: PipelineCard; onOpe
       {...listeners}
       {...attributes}
       onClick={() => onOpen(card.id)}
-      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(card.id); } }}
+      onKeyDown={(e) => {
+        listeners?.onKeyDown?.(e);         // KeyboardSensor: Espacio levanta/suelta
+        if (e.defaultPrevented) return;    // si el sensor tomó el evento, no abrir
+        if (e.key === 'Enter') { e.preventDefault(); onOpen(card.id); }
+      }}
       aria-label={`${card.nombre}, prioridad ${card.score}${vencida ? ', con tarea vencida' : ''}`}
       className={`group card p-2.5 mb-2 cursor-grab transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-focus ${isDragging ? 'opacity-50' : ''}`}
     >
