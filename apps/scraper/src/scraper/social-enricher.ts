@@ -1,4 +1,4 @@
-import type { BrowserContext } from 'playwright';
+import type { BrowserContext, Page } from 'playwright';
 import { parseFacebookProfile, parseInstagramProfile, normalizeUrl, type SocialProfileData } from '@leadhub/core';
 import { sleep, jitter } from '../utils/rate-limiter.js';
 import { logWarn } from '../utils/logger.js';
@@ -12,8 +12,9 @@ async function fetchProfile(
   timeoutMs: number,
 ): Promise<SocialProfileData> {
   const url = normalizeUrl(rawUrl);
-  const page = await context.newPage();
+  let page: Page | undefined;
   try {
+    page = await context.newPage();
     await page.goto(url, { timeout: timeoutMs, waitUntil: 'domcontentloaded' });
     if (LOGIN_URL_RE.test(page.url())) return {};
     const html = await page.content();
@@ -22,7 +23,9 @@ async function fetchProfile(
     logWarn(`No se pudo enriquecer perfil: ${url}`);
     return {};
   } finally {
-    await page.close();
+    if (page) {
+      try { await page.close(); } catch { /* best-effort: ignorar */ }
+    }
   }
 }
 
