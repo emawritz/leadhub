@@ -102,7 +102,7 @@ export default function KanbanBoard({ onOpen, filter }: { onOpen: (id: string) =
       onDragEnd={onDragEnd}
       accessibility={{
         announcements: {
-          onDragStart: ({ active }) => `Tomaste la tarjeta ${String(active.id)}.`,
+          onDragStart: ({ active }) => `Tomaste la tarjeta ${cards.find((c) => c.id === String(active.id))?.nombre ?? String(active.id)}.`,
           onDragOver: ({ over }) => (over ? `Sobre la etapa ${stageLabel(String(over.id))}.` : 'Fuera de las etapas.'),
           onDragEnd: ({ over }) => (over ? `Soltaste en ${stageLabel(String(over.id))}.` : 'Cancelado.'),
           onDragCancel: () => 'Movimiento cancelado.',
