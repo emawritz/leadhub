@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseFacebookProfile } from '../src/social-profile.js';
+import { parseFacebookProfile, parseInstagramProfile } from '../src/social-profile.js';
 
 const FB_FULL = `
 <html><head><title>Panadería La Espiga</title></head><body>
@@ -30,5 +30,30 @@ describe('parseFacebookProfile', () => {
   it('omite las claves que no encuentra (sin inventar)', () => {
     const r = parseFacebookProfile('<html><body>Sin contacto</body></html>');
     expect(r).toEqual({});
+  });
+});
+
+const IG_FULL = `
+<html><body><script type="application/json">
+{"biography":"Panadería artesanal. Pedidos: hola@laespiga.com.ar","external_url":"https://www.laespiga.com.ar/","business_email":"ventas@laespiga.com.ar"}
+</script></body></html>`;
+
+const IG_LOGIN = `<html><body><div>Iniciá sesión para ver esta foto</div></body></html>`;
+
+describe('parseInstagramProfile', () => {
+  it('extrae sitio web (external_url) y email de negocio del JSON del perfil', () => {
+    const r = parseInstagramProfile(IG_FULL);
+    expect(r.sitioWeb).toBe('https://www.laespiga.com.ar/');
+    expect(r.email).toBe('ventas@laespiga.com.ar');
+  });
+  it('cae al email de la biografía si no hay business_email', () => {
+    const html = `<script>{"biography":"Escribinos a hola@laespiga.com.ar","external_url":"","business_email":""}</script>`;
+    expect(parseInstagramProfile(html).email).toBe('hola@laespiga.com.ar');
+  });
+  it('devuelve {} ante muro de login', () => {
+    expect(parseInstagramProfile(IG_LOGIN)).toEqual({});
+  });
+  it('omite claves ausentes', () => {
+    expect(parseInstagramProfile('<html><body>x</body></html>')).toEqual({});
   });
 });

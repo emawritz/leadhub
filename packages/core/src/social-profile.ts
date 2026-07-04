@@ -70,3 +70,24 @@ export function parseFacebookProfile(html: string): SocialProfileData {
   if (direccion) out.direccion = direccion;
   return out;
 }
+
+function jsonField(html: string, key: string): string {
+  const re = new RegExp(`"${key}"\\s*:\\s*"([^"]*)"`, 'i');
+  const m = html.match(re);
+  return m ? m[1] : '';
+}
+
+export function parseInstagramProfile(html: string): SocialProfileData {
+  if (isSocialLoginWall(html)) return {};
+  const externalUrl = jsonField(html, 'external_url');
+  const businessEmail = jsonField(html, 'business_email');
+  const biography = jsonField(html, 'biography');
+  const email = businessEmail || filterEmails(extractEmails(biography))[0] || '';
+  const sitioWeb = externalUrl ? normalizeUrl(externalUrl) : '';
+  const whatsapp = extractWhatsappLink(biography) || extractWhatsappLink(html);
+  const out: SocialProfileData = {};
+  if (email) out.email = email;
+  if (sitioWeb) out.sitioWeb = sitioWeb;
+  if (whatsapp) out.whatsapp = whatsapp;
+  return out;
+}
