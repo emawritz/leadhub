@@ -13,10 +13,12 @@ export interface SocialProfileData {
 
 // Marcadores robustos a acento: se busca el fragmento sin el prefijo
 // "inicia/iniciá" para matchear ambas variantes ("Iniciá sesión", "Inicia sesión").
+// Marcadores en el cuerpo del HTML. 'checkpoint' NO va acá (es palabra común y
+// daría falsos positivos); el redirect real de checkpoint se detecta por URL en
+// la capa I/O (social-enricher.ts, LOGIN_URL_RE).
 const LOGIN_MARKERS = [
   '/login/device-based/',
   'accounts/login',
-  'checkpoint',
   'log in to facebook',
   'sesión en facebook',
   'sesión para ver',
@@ -49,7 +51,7 @@ export function extractFacebookExternalUrl(html: string): string {
   }
 }
 
-const ADDR_RE = /Direcci[oó]n:\s*([^<\n]{6,120})/i;
+const ADDR_RE = /(?:Direcci[oó]n|Address):\s*([^<\n]{6,120})/i;
 
 function extractFacebookAddress(html: string): string {
   const m = html.match(ADDR_RE);
