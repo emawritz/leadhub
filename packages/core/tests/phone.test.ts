@@ -18,4 +18,10 @@ describe('extractPhone', () => {
   it('no confunde una fecha o número suelto con teléfono', () => {
     expect(extractPhone('<p>Fundado en 2020, 15 años</p>')).toBe('');
   });
+  it('extrae un número local de 8 dígitos con separador (sin código de área)', () => {
+    expect(extractPhone('<p>Llamanos al 4444-5555</p>')).toBe('4444-5555');
+  });
+  it('no matchea 8 dígitos corridos sin separador', () => {
+    expect(extractPhone('<p>Pedido 44445555 confirmado</p>')).toBe('');
+  });
 });

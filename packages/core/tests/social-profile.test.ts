@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { parseFacebookProfile, parseInstagramProfile } from '../src/social-profile.js';
+import { parseFacebookProfile, parseInstagramProfile, fillEmptyFields } from '../src/social-profile.js';
+import type { Lead } from '../src/types.js';
 
 const FB_FULL = `
 <html><head><title>Panadería La Espiga</title></head><body>
@@ -63,9 +64,6 @@ describe('parseInstagramProfile', () => {
     expect(r.email).toBe('ventas@laespiga.com.ar');
   });
 });
-
-import { fillEmptyFields } from '../src/social-profile.js';
-import type { Lead } from '../src/types.js';
 
 const baseLead = (over: Partial<Lead> = {}): Lead => ({
   razonSocial: 'La Espiga', nombreFantasia: 'La Espiga', telefono: '', email: '',
