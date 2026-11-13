@@ -88,7 +88,7 @@ con una ruta absoluta (o relativa desde ahí) al JSON generado por el scraper:
 
 ```bash
 pnpm --filter @leadhub/ingest build
-cd apps/ingest && pnpm dev -- --input /Users/ema/Desktop/google-maps-clients/output/localcenter_consolidado.json
+cd apps/ingest && pnpm dev -- --input ../../output/leads.json
 ```
 
 El comando imprime cuántos leads insertó/actualizó (idempotente: correrlo de nuevo actualiza en vez de duplicar).

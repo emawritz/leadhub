@@ -1,7 +1,7 @@
 import type { Lead } from '@leadhub/core';
 
 // Fuente alternativa: OpenStreetMap vía Overpass API (libre, sin anti-bot).
-// Rubros del ICP de LocalCenter mapeados desde el tag `shop`.
+// Rubros mayoristas y de ferretería/pinturería mapeados desde el tag `shop`.
 
 export const OSM_SHOP_TYPES = ['wholesale', 'trade', 'doityourself', 'hardware', 'paint'];
 

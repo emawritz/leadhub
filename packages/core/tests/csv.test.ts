@@ -12,7 +12,7 @@ const lead: Lead = {
 };
 
 describe('leadToRow', () => {
-  it('mapea Lead a columnas LocalCenter', () => {
+  it('mapea Lead a columnas del CSV', () => {
     const row = leadToRow(lead);
     expect(row.razon_social).toBe('Gym X');
     expect(row.calificacion_google).toBe('4.5');
